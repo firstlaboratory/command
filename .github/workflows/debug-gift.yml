@@ -12,12 +12,11 @@ jobs:
               try:
                   r=urllib.request.urlopen(urllib.request.Request(u,headers=UA),timeout=20);b=r.read().decode('utf-8','replace');return r.status,b
               except Exception as e: return 'ERR',str(e)
-          s,h=g('https://www.nseix.com/'); print('HOME',s,len(h))
-          urls=set(re.findall(r'["\'](/api/[^"\']+|https?://[^"\']*nseix[^"\']*api[^"\']*)["\']',h)); print('APIS',list(urls)[:40])
-          for js in re.findall(r'src="([^"]+\.js[^"]*)"',h)[:12]:
-              u=js if js.startswith('http') else 'https://www.nseix.com'+js; s2,b=g(u)
-              f=set(re.findall(r'["\'`](/api/[^"\'`]{3,80})["\'`]',b)); 
-              if f: print('JS',u[-50:],sorted(f)[:40])
-          for u in ['https://www.nseix.com/api/gift-nifty','https://www.nseix.com/api/giftnifty','https://www.nseix.com/api/market-data/gift-nifty','https://query1.finance.yahoo.com/v8/finance/chart/%5EGIFTNIFTY','https://www.investing.com/indices/sgx-nifty-50-futures']:
-              s3,b=g(u); print('TRY',u,s3,b[:300].replace('\n',' '))
+          for base in ['https://www.nseix.com/','https://live.giftcitynifty.com/']:
+              s,h=g(base); print('HOME',base,s,len(h))
+              srcs=re.findall(r'src="([^"]+\.js[^"]*)"',h); print('SRCS',srcs[:15])
+              blobs=[h]+[g(js if js.startswith('http') else base.rstrip('/')+'/'+js.lstrip('/'))[1] for js in srcs[:10]]
+              for b in blobs:
+                  for m in set(re.findall(r'(https?://[A-Za-z0-9./_-]*(?:api|json|quote|market|gift|nifty)[A-Za-z0-9./_?=&-]*)',b,re.I)): print('URL',m[:160])
+                  for m in set(re.findall(r'["\'`](/[A-Za-z0-9_/-]*(?:api|gift|market)[A-Za-z0-9_/?=&.-]*)["\'`]',b,re.I)): print('PATH',m[:120])
           PY
