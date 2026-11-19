@@ -24,10 +24,11 @@ def num(s):
 
 def gold():
     h = re.sub(r'\s+', ' ', get('https://www.goodreturns.in/gold-rates/chennai.html'))
-    R = r'(?:₹|&#8377;|&#x20b9;|Rs\.?)\s*([\d,]{4,7})'
+    R = r'(?:₹|&#8377;|&#x20b9;|&#X20B9;|Rs\.?)\s*([\d,]{4,7})'
     def find(k):
-        for pat in (k + r'K Gold\s*/\s*g.{0,400}?' + R,
-                    k + r'\s*(?:K|Carat|Karat)[^₹]{0,250}?(?:1\s*)?gram[^₹]{0,120}?' + R):
+        pats = (r'id="' + k + r'K-price"[^>]*>\s*' + R,      # server-rendered price cards
+                k + r'K(?:&nbsp;|\s)*Gold(?:&nbsp;|\s)*<span>\s*/g.{0,400}?' + R)
+        for pat in pats:
             m = re.search(pat, h, re.I)
             if m:
                 v = num(m.group(1))
