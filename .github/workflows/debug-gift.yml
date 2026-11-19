@@ -12,11 +12,9 @@ jobs:
               try:
                   r=urllib.request.urlopen(urllib.request.Request(u,headers=UA),timeout=20);b=r.read().decode('utf-8','replace');return r.status,b
               except Exception as e: return 'ERR',str(e)
-          for base in ['https://www.nseix.com/','https://live.giftcitynifty.com/']:
-              s,h=g(base); print('HOME',base,s,len(h))
-              srcs=re.findall(r'src="([^"]+\.js[^"]*)"',h); print('SRCS',srcs[:15])
-              blobs=[h]+[g(js if js.startswith('http') else base.rstrip('/')+'/'+js.lstrip('/'))[1] for js in srcs[:10]]
-              for b in blobs:
-                  for m in set(re.findall(r'(https?://[A-Za-z0-9./_-]*(?:api|json|quote|market|gift|nifty)[A-Za-z0-9./_?=&-]*)',b,re.I)): print('URL',m[:160])
-                  for m in set(re.findall(r'["\'`](/[A-Za-z0-9_/-]*(?:api|gift|market)[A-Za-z0-9_/?=&.-]*)["\'`]',b,re.I)): print('PATH',m[:120])
+          H2=dict(UA,Referer='https://www.nseix.com/',Accept='application/json, text/plain, */*')
+          for u in ['/api/nifty-market-rate','/api/index-derivatives','/api/derivatives-watch?inst_type1=IDX&inst_type2=STK&type=live','/api/getquotes?symbol=NIFTY','/api/getquotes?symbol=GIFTNIFTY','/api/derivatives-market-status']:
+              try:
+                  r=urllib.request.urlopen(urllib.request.Request('https://www.nseix.com'+u,headers=H2),timeout=20);b=r.read().decode('utf-8','replace');print('OK',u,r.status,b[:700])
+              except Exception as e: print('ERR',u,e)
           PY
