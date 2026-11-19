@@ -137,7 +137,7 @@ html[data-theme=light] .tag.Idea{border-color:#b7d7ef} html[data-theme=light] .t
 .brief-ai{font-size:15px;line-height:1.5;margin-bottom:10px}
 .brief li{padding:6px 0;font-size:14px}
 .mk{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
-.mk div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px}
+.mk a{display:block} .mk div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px}
 .mk small{display:block;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px}
 .mk b{font-family:"JetBrains Mono",monospace;font-size:15px}
 .up{color:var(--accent)} .dn{color:var(--bad)}
@@ -734,7 +734,8 @@ function renderMarkets(){const box=$('#mkBody');if(!MK){$('#mkCard').style.displ
   const f=(v,d=0)=>Number(v).toLocaleString('en-IN',{maximumFractionDigits:d,minimumFractionDigits:d});
   const tile=(n,v,chg)=>`<div><small>${n}</small><b>${v}</b>${chg!=null?` <span class="${chg>=0?'up':'dn'}" style="font-size:11px">${chg>=0?'▲':'▼'}${Math.abs(chg).toFixed(2)}%</span>`:''}</div>`;
   const it=MK.items||[],c=MK.chennai||{};
-  box.innerHTML=it.map(i=>tile(i.name,i.id==='usdinr'?'₹'+f(i.price,2):i.id==='brent'?'$'+f(i.price,1):f(i.price),i.chg)).join('')
+  const gift=`<a href="https://www.google.com/search?q=gift+nifty" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div><small>GIFT Nifty</small><b style="color:var(--accent2)">Live ↗</b></div></a>`;
+  box.innerHTML=gift+it.map(i=>tile(i.name,i.id==='usdinr'?'₹'+f(i.price,2):i.id==='brent'?'$'+f(i.price,1):f(i.price),i.chg)).join('')
     +(c.g22?tile('Gold 22K /g','₹'+f(c.g22)):'')+(c.g24?tile('Gold 24K /g','₹'+f(c.g24)):'')+(c.petrol?tile('Petrol /L','₹'+f(c.petrol,2)):'')+(c.diesel?tile('Diesel /L','₹'+f(c.diesel,2)):'');
   $('#mkUpd').textContent=MK.updated?'updated '+ago(MK.updated)+' · fuel & gold: Chennai':'';}
 
