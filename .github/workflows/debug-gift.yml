@@ -1,0 +1,23 @@
+name: Debug gift nifty
+on: workflow_dispatch
+jobs:
+  d:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          python3 - <<'PY'
+          import re,urllib.request,json
+          UA={'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36','Accept':'*/*'}
+          def g(u):
+              try:
+                  r=urllib.request.urlopen(urllib.request.Request(u,headers=UA),timeout=20);b=r.read().decode('utf-8','replace');return r.status,b
+              except Exception as e: return 'ERR',str(e)
+          s,h=g('https://www.nseix.com/'); print('HOME',s,len(h))
+          urls=set(re.findall(r'["\'](/api/[^"\']+|https?://[^"\']*nseix[^"\']*api[^"\']*)["\']',h)); print('APIS',list(urls)[:40])
+          for js in re.findall(r'src="([^"]+\.js[^"]*)"',h)[:12]:
+              u=js if js.startswith('http') else 'https://www.nseix.com'+js; s2,b=g(u)
+              f=set(re.findall(r'["\'`](/api/[^"\'`]{3,80})["\'`]',b)); 
+              if f: print('JS',u[-50:],sorted(f)[:40])
+          for u in ['https://www.nseix.com/api/gift-nifty','https://www.nseix.com/api/giftnifty','https://www.nseix.com/api/market-data/gift-nifty','https://query1.finance.yahoo.com/v8/finance/chart/%5EGIFTNIFTY','https://www.investing.com/indices/sgx-nifty-50-futures']:
+              s3,b=g(u); print('TRY',u,s3,b[:300].replace('\n',' '))
+          PY
