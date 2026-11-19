@@ -218,7 +218,7 @@ nav button.on{color:var(--accent)}
     <p class="muted" style="margin-top:0">Sign in with Google to keep everything in sync on all your devices. Data is saved in a hidden app folder in <b>your own</b> Google Drive.</p>
     <div id="syncInfo" class="muted" style="margin-bottom:10px">Not signed in</div>
     <div class="row"><button class="primary" id="gIn">Sign in with Google</button><button id="gSync" style="display:none">Sync now</button><button class="danger shrink" id="gOut" style="display:none">Sign out</button></div>
-    <details style="margin-top:10px"><summary class="muted" style="cursor:pointer">Google Client ID</summary>
+    <details style="margin-top:10px;display:none"><summary class="muted" style="cursor:pointer">Google Client ID</summary>
       <input id="gCid" placeholder="xxxx.apps.googleusercontent.com" style="margin-top:8px"><button id="gCidSave" style="margin-top:8px">Save Client ID</button></details>
   </div>
   <div class="card"><h2>Garmin via intervals.icu</h2>
@@ -615,7 +615,7 @@ $('#resetBtn').onclick=()=>confirmSheet('This wipes all your data on this device
 
 
 /* ---------- Google Drive sync (appDataFolder) ---------- */
-const CLIENT_ID_DEFAULT='';            // set once you have it, e.g. '1234-abc.apps.googleusercontent.com'
+const CLIENT_ID_DEFAULT='297566847990-1112ps2i81fkjrpqntegoqtafun390gt.apps.googleusercontent.com';
 const SM='cmdcentre.syncmeta', FILE='command-centre.json';
 const SCOPE='https://www.googleapis.com/auth/drive.appdata email';
 const ID_ARRAYS=['apps','tasks','countdowns','habits','goals','schedule','books','articles'];
