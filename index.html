@@ -153,6 +153,9 @@ html[data-theme=light] .tag.Idea{border-color:#b7d7ef} html[data-theme=light] .t
 .trn .times{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
 .trn .days span{font-size:10px;padding:1px 4px;border-radius:4px;color:var(--dim)} .trn .days span.on{color:var(--accent)}
 textarea{resize:vertical}
+.tam-big{font-size:22px;font-weight:700} .tam-row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:14px;border-top:1px solid var(--line)}
+.tam-row span:first-child{color:var(--dim)} .badge{display:inline-block;font-size:12px;padding:3px 9px;border-radius:20px;margin:6px 6px 0 0;background:var(--panel2);border:1px solid var(--line)}
+.badge.gold{border-color:var(--warn);color:var(--warn)} .tam-up{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
 .tk-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
 .tk-cat{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px}
 .tk-cat .nm{width:96px;flex:0 0 96px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -189,8 +192,9 @@ textarea{resize:vertical}
     </div>
   </div>
   <div style="height:12px"></div>
+  <div class="card" id="tamCard"><h2>🪔 தமிழ் நாள்காட்டி <span class="muted" style="text-transform:none;letter-spacing:0" id="tamYear"></span></h2><div id="tamBody"></div></div>
   <div class="card"><h2>Up next <button class="ghost" data-go="plan">Schedule →</button></h2><ul class="list tl" id="upNext"></ul></div>
-  <div class="card" id="ytCard"><h2>▶️ New on YouTube <button class="ghost" data-go="news" data-ytgo="1">All →</button></h2><div id="ytHome"></div></div>
+  <div class="card" id="ytCard"><h2>▶️ New on YouTube <span><button class="ghost" id="ytRef" title="Refresh">↻</button> <button class="ghost" data-go="news" data-ytgo="1">All →</button></span></h2><div id="ytHome"></div></div>
   <div class="card" id="mkCard"><h2>Markets <span class="muted" style="text-transform:none;letter-spacing:0" id="mkUpd"></span></h2><div class="mk" id="mkBody"></div></div>
   <div class="card" id="trHome"><h2>🚆 Travel <button class="ghost" data-go="plan" data-sub="travel">Search →</button></h2><div id="trHomeRoutes"></div></div>
   <div class="card" id="alertCard" style="display:none"><h2>Bills & occasions <button class="ghost" data-go="more" data-mtgo="bills">Manage →</button></h2><ul class="list" id="alertList"></ul></div>
@@ -307,7 +311,7 @@ textarea{resize:vertical}
     <div class="row" style="margin-top:8px"><label class="btn" style="text-align:center">Restore from file<input type="file" id="importFile" accept=".json,application/json" hidden></label><button id="pasteBtn">Paste backup</button></div>
   </div>
   <div class="card"><h2>Danger zone</h2><button class="danger" id="resetBtn">Reset everything</button></div>
-  <p class="muted" style="text-align:center">Command Centre v7 · firstlaboratory</p>
+  <p class="muted" style="text-align:center">Command Centre v8 · firstlaboratory</p>
   <div class="card"><h2>Live train timetable (RailRadar)</h2>
     <p class="muted" style="margin-top:0">Optional. Free key from railradar.in (100 searches/month; results are cached). Without it, Travel uses Google Maps, redBus and IRCTC links.</p>
     <input id="rrKey" type="password" autocomplete="off" placeholder="RailRadar API key"><div class="row" style="margin-top:8px"><button id="rrSave">Save key</button></div>
@@ -404,7 +408,7 @@ async function weather(){const c=S.city,box=$('#wx');
       <div class="muted">${esc(c.name)} · ${w[1]}</div><div class="muted">H ${W.max}° L ${W.min}° · ☔ ${W.rain}%</div>
       ${aqi!=null?`<div class="muted">AQI <b style="color:${aq[1]}">${Math.round(aqi)}</b> ${aq[0]}</div>`:''}
       <div class="muted">🌅 ${W.rise} · 🌇 ${W.set}</div>`;
-    renderBrief();
+    renderBrief();renderTamil();
   }catch(e){box.innerHTML=`<div class="muted">${esc(c.name)}<br>Weather unavailable right now</div>`;}}
 
 /* ---------- news ---------- */
@@ -573,7 +577,7 @@ function render(){
     return `<li><div class="grow"><div class="row" style="justify-content:space-between"><div class="title">${esc(g.name)}</div><div class="mono muted shrink">${fmt(g.current)} / ${fmt(g.target)} ${esc(g.unit||'')}</div></div><div class="bar"><i style="width:${p}%"></i></div>
     <div class="row" style="margin-top:8px;justify-content:flex-start"><button class="shrink" data-goal-step="${g.id}" data-d="-1">−1</button><button class="shrink" data-goal-step="${g.id}" data-d="1">+1</button><button class="shrink" data-goal-set="${g.id}">Update</button><span></span><button class="ghost danger shrink" data-del-goal="${g.id}">remove</button></div></div></li>`}).join('')||'<li class="empty">No goals yet — e.g. "Run 50 km before the trek"</li>';
   $('#setName').value=S.name||'';$('#setCity').value=S.city?.name||'';
-  renderSchedule();renderReading();renderNews();renderHomeNews();renderFit();renderTrickle();renderExtras();renderYT();renderTravel();
+  renderSchedule();renderReading();renderNews();renderHomeNews();renderFit();renderTrickle();renderExtras();renderYT();renderTravel();renderTamil();
 }
 
 /* ---------- sheet ---------- */
@@ -866,6 +870,7 @@ function briefFacts(){const F=[],t=dkey(),n=nowHM();
   if(FIT&&FIT.well){const w=FIT.well.filter(x=>x.ctl!=null).slice(-1)[0];if(w){const f=Math.round(w.ctl-w.atl);F.push(['🏃',`Training form ${f>0?'+':''}${f}${f<-20?' — take it easy today':f>5?' — fresh, good day for a hard session':''}`]);}}
   const T=lsGet('trickle_summary');if(T&&T.month===t.slice(0,7))F.push(['💸',`${inr.format(T.spent)} spent this month${T.budget?` of ${inr.format(T.budget)}`:''}`]);
   const hq=hiQ||hiQueue();if(hq.length)F.push(['🔤',`${hq.length} Hindi words to revise`]);
+  if(typeof tamSpecial==='function')tamSpecial(t).forEach(x=>F.push([x.ic,`Today: ${x.en}${x.ta?' ('+x.ta+')':''}`]));
   const top=NEWS?.categories?.[0]?.items?.[0];if(top)F.push(['📰',top.t]);
   return F;}
 function renderBrief(){const F=briefFacts();$('#briefList').innerHTML=F.map(([i,x])=>`<li><span style="width:24px;display:inline-block">${i}</span>${esc(x)}</li>`).join('')||'<li class="empty">All clear today ✨</li>';
@@ -1084,8 +1089,78 @@ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)r
   if(d.ytgo){S.newsCat='yt';setTimeout(()=>{renderNews();loadYT();},0);return;}
 });
 
+
+/* ================= Tamil calendar ================= */
+const PANCH=(function(){
+const R=Math.PI/180,n=x=>((x%360)+360)%360;
+const jd=d=>d.getTime()/864e5+2440587.5;
+function sunLon(T){const L0=280.46646+36000.76983*T,M=(357.52911+35999.05029*T)*R;
+  const C=(1.914602-0.004817*T)*Math.sin(M)+0.019993*Math.sin(2*M)+0.000289*Math.sin(3*M);
+  return n(L0+C-0.00569-0.00478*Math.sin((125.04-1934.136*T)*R));}
+const MT=[[0,0,1,0,6288774],[2,0,-1,0,1274027],[2,0,0,0,658314],[0,0,2,0,213618],[0,1,0,0,-185116],[0,0,0,2,-114332],[2,0,-2,0,58793],[2,-1,-1,0,57066],[2,0,1,0,53322],[2,-1,0,0,45758],[0,1,-1,0,-40923],[1,0,0,0,-34720],[0,1,1,0,-30383],[2,0,0,-2,15327],[0,0,1,2,-12528],[0,0,1,-2,10980],[4,0,-1,0,10675],[0,0,3,0,10034],[4,0,-2,0,8548],[2,1,-1,0,-7888],[2,1,0,0,-6766],[1,0,-1,0,-5163],[1,1,0,0,4987],[2,-1,1,0,4036],[2,0,2,0,3994],[4,0,0,0,3861],[2,0,-3,0,3665],[0,1,-2,0,-2689],[2,0,-1,2,-2602],[2,-1,-2,0,2390],[1,0,1,0,-2348],[2,-2,0,0,2236]];
+function moonLon(T){const L=218.3164477+481267.88123421*T,D=(297.8501921+445267.1114034*T)*R,M=(357.5291092+35999.0502909*T)*R,Mp=(134.9633964+477198.8675055*T)*R,F=(93.2720950+483202.0175233*T)*R;
+  let s=0;for(const [a,b,c,d,k] of MT)s+=k*Math.sin(a*D+b*M+c*Mp+d*F);
+  return n(L+s/1e6+0.003958*Math.sin((119.75+131.849*T)*R)+0.001962*Math.sin(L*R-F)-0.00478*Math.sin((125.04-1934.136*T)*R));}
+const ayan=T=>23.8531+0.0139690*T*100;
+function at(date){const T=(jd(date)-2451545)/36525,a=ayan(T);return {sun:n(sunLon(T)-a),moon:n(moonLon(T)-a),el:n(moonLon(T)-sunLon(T))};}
+const IST=(y,m,d,h,mi)=>new Date(Date.UTC(y,m,d,h-5,mi-30));
+const TM=['சித்திரை','வைகாசி','ஆனி','ஆடி','ஆவணி','புரட்டாசி','ஐப்பசி','கார்த்திகை','மார்கழி','தை','மாசி','பங்குனி'];
+const TME=['Chithirai','Vaikasi','Aani','Aadi','Aavani','Purattasi','Aippasi','Karthigai','Margazhi','Thai','Maasi','Panguni'];
+const NK=[['அஸ்வினி','Ashwini'],['பரணி','Bharani'],['கார்த்திகை','Karthigai'],['ரோகிணி','Rohini'],['மிருகசீரிஷம்','Mirugasirisham'],['திருவாதிரை','Thiruvathirai'],['புனர்பூசம்','Punarpoosam'],['பூசம்','Poosam'],['ஆயில்யம்','Ayilyam'],['மகம்','Magam'],['பூரம்','Pooram'],['உத்திரம்','Uthiram'],['அஸ்தம்','Hastham'],['சித்திரை','Chithirai'],['சுவாதி','Swathi'],['விசாகம்','Visakam'],['அனுஷம்','Anusham'],['கேட்டை','Kettai'],['மூலம்','Moolam'],['பூராடம்','Pooradam'],['உத்திராடம்','Uthiradam'],['திருவோணம்','Thiruvonam'],['அவிட்டம்','Avittam'],['சதயம்','Sathayam'],['பூரட்டாதி','Poorattathi'],['உத்திரட்டாதி','Uthirattathi'],['ரேவதி','Revathi']];
+const TT=[['பிரதமை','Prathamai'],['துவிதியை','Dwitiyai'],['திருதியை','Tritiyai'],['சதுர்த்தி','Chathurthi'],['பஞ்சமி','Panchami'],['சஷ்டி','Sashti'],['சப்தமி','Sapthami'],['அஷ்டமி','Ashtami'],['நவமி','Navami'],['தசமி','Dasami'],['ஏகாதசி','Ekadasi'],['துவாதசி','Dwadasi'],['திரயோதசி','Thrayodasi'],['சதுர்த்தசி','Chathurdasi']];
+const YR='பிரபவ,விபவ,சுக்ல,பிரமோதூத,பிரசோற்பத்தி,ஆங்கீரச,ஸ்ரீமுக,பவ,யுவ,தாது,ஈஸ்வர,வெகுதான்ய,பிரமாதி,விக்கிரம,விஷு,சித்திரபானு,சுபானு,தாரண,பார்த்திப,விய,சர்வசித்து,சர்வதாரி,விரோதி,விக்ருதி,கர,நந்தன,விஜய,ஜய,மன்மத,துன்முகி,ஹேவிளம்பி,விளம்பி,விகாரி,சார்வரி,பிலவ,சுபகிருது,சோபகிருது,குரோதி,விசுவாவசு,பராபவ,பிலவங்க,கீலக,சௌமிய,சாதாரண,விரோதகிருது,பரிதாபி,பிரமாதீச,ஆனந்த,ராட்சச,நள,பிங்கள,காளயுக்தி,சித்தார்த்தி,ரௌத்திரி,துன்மதி,துந்துபி,ருத்ரோத்காரி,ரக்தாட்சி,குரோதன,அட்சய'.split(',');
+const WD=['ஞாயிறு','திங்கள்','செவ்வாய்','புதன்','வியாழன்','வெள்ளி','சனி'];
+function tithiOf(el){const i=Math.floor(el/12);const paksha=i<15?'valar':'thei';const k=i%15;
+  const nm=k===14?(i<15?['பௌர்ணமி','Pournami']:['அமாவாசை','Amavasai']):TT[k];return {i,paksha,ta:nm[0],en:nm[1]};}
+// day: {y,m(0-11),d}; rise/set 'HH:MM' optional
+function day(y,m,d,rise='06:15',set='17:45'){
+  const [rh,rm]=rise.split(':').map(Number),[sh,sm]=set.split(':').map(Number);
+  const sr=IST(y,m,d,rh,rm),ss=IST(y,m,d,sh,sm);const A=at(sr);
+  const sign=dt=>Math.floor(at(dt).sun/30);const s0=sign(IST(y,m,d,sh,sm));
+  let dn=1;for(let k=1;k<33;k++){if(sign(IST(y,m,d-k,sh,sm))===s0)dn++;else break;}
+  const ty=(m+1>=4&&s0<9)?y:y-1;
+  const t=tithiOf(A.el),nk=NK[Math.floor(A.moon/(360/27))];
+  // tithi/nakshatra end: step forward in 10-min increments (max 30h)
+  const end=(f,v)=>{for(let mins=10;mins<=1800;mins+=10){const dt=new Date(sr.getTime()+mins*6e4);if(f(at(dt))!==v)return dt;}return null;};
+  const tEnd=end(a=>Math.floor(a.el/12),t.i),nEnd=end(a=>Math.floor(a.moon/(360/27)),Math.floor(A.moon/(360/27)));
+  const wd=new Date(Date.UTC(y,m,d)).getUTCDay(),part=(ss-sr)/8,seg=k=>[new Date(sr.getTime()+(k-1)*part),new Date(sr.getTime()+k*part)];
+  const ni=Math.floor(A.moon/(360/27)),nx=NK[(ni+1)%27];
+  return {tamilYear:YR[((ty-1987)%60+60)%60],month:TM[s0],monthEn:TME[s0],mi:s0,day:dn,weekday:WD[wd],tithi:t,tithiNext:tithiOf(((t.i+1)%30)*12+1),tithiEnd:tEnd,nak:{ta:nk[0],en:nk[1]},nakNext:{ta:nx[0],en:nx[1]},nakEnd:nEnd,
+    rahu:seg([8,2,7,5,6,4,3][wd]),yama:seg([5,4,3,2,1,7,6][wd]),kuli:seg([7,6,5,4,3,2,1][wd])};}
+return {day};})();
+
+let TAM=null;
+async function loadTamil(){try{const r=await fetch('data/tamil.json?'+Math.floor(Date.now()/36e5),{cache:'no-cache'});if(r.ok)TAM=await r.json();}catch(e){}renderTamil();renderBrief();}
+const tfmt=d=>d?d.toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'numeric',minute:'2-digit'}):'';
+function tamToday(){const t=new Date(),ist=new Date(t.getTime()+(330+t.getTimezoneOffset())*6e4);
+  return PANCH.day(ist.getFullYear(),ist.getMonth(),ist.getDate(),W?.rise||'06:15',W?.set||'17:45');}
+function tamSpecial(ds){if(!TAM)return [];const out=[];
+  const mu=TAM.muhurtham.find(x=>x.d===ds);if(mu)out.push({ic:'💍',ta:'சுப முகூர்த்தம்',en:'Subha Muhurtham'+(mu.v?' (Valarpirai)':mu.t?' (Theipirai)':''),gold:1});
+  TAM.events.filter(x=>x.d===ds).forEach(x=>out.push({ic:'🪔',ta:x.ta,en:x.en}));
+  TAM.festivals.filter(x=>x.d===ds).forEach(x=>out.push({ic:x.hol?'🏛️':'🎉',ta:'',en:x.en+(x.hol?' (holiday)':'')}));return out;}
+function renderTamil(){const box=$('#tamBody');if(!box)return;let P;try{P=tamToday();}catch(e){box.innerHTML='<div class="muted">Calendar unavailable</div>';return;}
+  const t=dkey(),sp=tamSpecial(t);$('#tamYear').textContent=P.tamilYear+' வருடம்';
+  const pk=P.tithi.paksha==='valar'?'வளர்பிறை':'தேய்பிறை',nowT=Date.now();
+  const cur=(a,end,b,pa,pb)=>end&&end.getTime()<nowT?`${pb?pb+' ':''}${esc(b)} <span class="muted">from ${tfmt(end)}</span>`:`${pa?pa+' ':''}${esc(a)}${end?` <span class="muted">till ${tfmt(end)}</span>`:''}`;
+  let up='';if(TAM){const until=addDays(t,30);const list=[];
+    TAM.muhurtham.filter(x=>x.d>t&&x.d<=until).slice(0,4).forEach(x=>list.push([x.d,'💍 முகூர்த்தம்'+(x.v?' · வளர்பிறை':'')]));
+    TAM.events.filter(x=>x.d>t&&x.d<=until).forEach(x=>list.push([x.d,'🪔 '+(x.ta||x.en)]));
+    TAM.festivals.filter(x=>x.d>t&&x.d<=until).forEach(x=>list.push([x.d,(x.hol?'🏛️ ':'🎉 ')+x.en]));
+    list.sort((a,b)=>a[0].localeCompare(b[0]));
+    up=list.slice(0,8).map(([d,n])=>`<div class="tam-up"><span>${esc(n)}</span><span class="muted">${new Date(d+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})} · ${inDays(daysTo(d))}</span></div>`).join('');}
+  box.innerHTML=`<div class="tam-big">${esc(P.month)} ${P.day} · ${esc(P.weekday)}</div><div class="muted" style="font-size:13px">${esc(P.monthEn)} ${P.day}</div>
+   <div>${sp.map(x=>`<span class="badge ${x.gold?'gold':''}">${x.ic} ${esc(x.ta||x.en)}${x.ta?` <span class="muted">${esc(x.en)}</span>`:''}</span>`).join('')}</div>
+   <div style="margin-top:10px">
+    <div class="tam-row"><span>திதி</span><span>${cur(P.tithi.ta,P.tithiEnd,P.tithiNext.ta,pk,P.tithiNext.paksha==='valar'?'வளர்பிறை':'தேய்பிறை')}</span></div>
+    <div class="tam-row"><span>நட்சத்திரம்</span><span>${cur(P.nak.ta,P.nakEnd,P.nakNext.ta,'','')}</span></div>
+    <div class="tam-row"><span>ராகு காலம்</span><span>${tfmt(P.rahu[0])} – ${tfmt(P.rahu[1])}</span></div>
+    <div class="tam-row"><span>எமகண்டம்</span><span>${tfmt(P.yama[0])} – ${tfmt(P.yama[1])}</span></div>
+    <div class="tam-row"><span>குளிகை</span><span>${tfmt(P.kuli[0])} – ${tfmt(P.kuli[1])}</span></div></div>
+   ${up?`<div class="muted" style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;margin:12px 0 4px">Coming up</div>${up}`:''}
+   <div class="muted" style="font-size:11px;margin-top:10px">Panchangam calculated for ${esc(S.city.name)} (Thirukanitha); may differ by a day from Vakya almanacs near month start. Muhurtham & festival dates: tamildot.com</div>`;}
+
 /* ---------- boot ---------- */
-load();render();weather();loadNews();fitFetch();initSync();loadMarkets();setTimeout(()=>loadYT(),2500);setTimeout(()=>{let c=null;try{c=JSON.parse(localStorage.getItem(BK)||'null');}catch(e){}if(gemKey()&&!(c&&c.date===dkey()))aiBrief(false);},5000);go(location.hash.slice(1)||'home');
+load();render();weather();loadNews();fitFetch();initSync();loadMarkets();loadTamil();$('#ytRef').onclick=()=>{toast('Refreshing YouTube…');loadYT(true);};setTimeout(()=>loadYT(),2500);setTimeout(()=>{let c=null;try{c=JSON.parse(localStorage.getItem(BK)||'null');}catch(e){}if(gemKey()&&!(c&&c.date===dkey()))aiBrief(false);},5000);go(location.hash.slice(1)||'home');
 setInterval(()=>{tick();renderSchedule();},30000);setInterval(weather,30*60000);setInterval(loadNews,20*60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){hiQ=null;render();loadNews();fitFetch();loadMarkets();loadYT();window.__sync&&window.__sync.pull();}});
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|claudeusercontent/.test(location.hostname)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
