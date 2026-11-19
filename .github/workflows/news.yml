@@ -1,8 +1,7 @@
 name: Refresh news & markets
 on:
   schedule:
-    - cron: '17 */3 * * *'   # every 3 hours
-    - cron: '47 3-10 * * 1-5'  # hourly during Indian market hours (UTC)
+    - cron: '17 * * * *'   # every hour (news, markets, Tamil calendar)
   workflow_dispatch:
 permissions:
   contents: write
