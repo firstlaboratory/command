@@ -10,7 +10,7 @@ jobs:
           UA={'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36'}
           h=urllib.request.urlopen(urllib.request.Request('https://www.goodreturns.in/gold-rates/chennai.html',headers=UA),timeout=25).read().decode('utf-8','replace')
           h=re.sub(r'\s+',' ',h)
-          for k in ('24K','22K','24 Carat','22 Carat'):
-              for m in list(re.finditer(k,h))[:3]:
-                  t=re.sub(r'<[^>]+>','|',h[m.start():m.start()+350]); print('###',k,'::',re.sub(r'\|+','|',t))
+          for k in ('id="24K-price"','id="22K-price"','fetch(','gold_price_24K','$.ajax','api','.json'):
+              for m in list(re.finditer(re.escape(k),h))[:2]:
+                  print('###',k,'::',h[max(0,m.start()-200):m.start()+250])
           PY
