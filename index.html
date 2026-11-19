@@ -156,6 +156,8 @@ textarea{resize:vertical}
 .tam-big{font-size:22px;font-weight:700} .tam-row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:14px;border-top:1px solid var(--line)}
 .tam-row span:first-child{color:var(--dim)} .badge{display:inline-block;font-size:12px;padding:3px 9px;border-radius:20px;margin:6px 6px 0 0;background:var(--panel2);border:1px solid var(--line)}
 .badge.gold{border-color:var(--warn);color:var(--warn)} .tam-up{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
+.tile-off{display:none!important} .grid2{margin-bottom:12px}
+.lay li{gap:6px} .lay .mv{padding:6px 10px;font-size:16px} .lay .mv:disabled{opacity:.3} .lay li.off .title{color:var(--dim);text-decoration:line-through}
 .tk-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
 .tk-cat{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px}
 .tk-cat .nm{width:96px;flex:0 0 96px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -176,14 +178,14 @@ textarea{resize:vertical}
 
 <!-- HOME -->
 <section class="view on" id="v-home">
-  <div class="card">
+  <div data-tile="capture" class="card">
     <form id="quickForm" class="row">
       <input id="quickIn" placeholder="Quick capture — task, idea:, remind:…" autocomplete="off">
       <button class="primary shrink" type="submit">Add</button>
     </form>
   </div>
-  <div class="card" id="briefCard"><h2>🌅 Your day <span><button class="ghost" id="briefAI" title="Write with AI">✨ AI brief</button></span></h2><div id="briefAiText" class="brief-ai" style="display:none"></div><ul class="list brief" id="briefList"></ul></div>
-  <div class="grid2">
+  <div data-tile="brief" class="card" id="briefCard"><h2>🌅 Your day <span><button class="ghost" id="briefAI" title="Write with AI">✨ AI brief</button></span></h2><div id="briefAiText" class="brief-ai" style="display:none"></div><ul class="list brief" id="briefList"></ul></div>
+  <div data-tile="wx" class="grid2">
     <div class="card"><h2>Weather</h2><div id="wx" class="muted">Loading…</div></div>
     <div class="card"><h2>Today</h2>
       <div class="big mono" id="todayStat">0/0</div>
@@ -191,26 +193,26 @@ textarea{resize:vertical}
       <div class="muted" id="taskStat" style="margin-top:6px"></div>
     </div>
   </div>
-  <div style="height:12px"></div>
-  <div class="card" id="tamCard"><h2>🪔 தமிழ் நாள்காட்டி <span class="muted" style="text-transform:none;letter-spacing:0" id="tamYear"></span></h2><div id="tamBody"></div></div>
-  <div class="card"><h2>Up next <button class="ghost" data-go="plan">Schedule →</button></h2><ul class="list tl" id="upNext"></ul></div>
-  <div class="card" id="ytCard"><h2>▶️ New on YouTube <span><button class="ghost" id="ytRef" title="Refresh">↻</button> <button class="ghost" data-go="news" data-ytgo="1">All →</button></span></h2><div id="ytHome"></div></div>
-  <div class="card" id="mkCard"><h2>Markets <span class="muted" style="text-transform:none;letter-spacing:0" id="mkUpd"></span></h2><div class="mk" id="mkBody"></div></div>
-  <div class="card" id="trHome"><h2>🚆 Travel <button class="ghost" data-go="plan" data-sub="travel">Search →</button></h2><div id="trHomeRoutes"></div></div>
-  <div class="card" id="alertCard" style="display:none"><h2>Bills & occasions <button class="ghost" data-go="more" data-mtgo="bills">Manage →</button></h2><ul class="list" id="alertList"></ul></div>
-  <div class="card" id="tripCard" style="display:none"></div>
-  <div class="card" id="hiCard"><h2>🔤 Hindi revision <span class="muted" style="text-transform:none;letter-spacing:0" id="hiLeft"></span></h2><div id="hiBody"></div></div>
-  <div class="card"><h2>📝 Journal <span class="muted" style="text-transform:none;letter-spacing:0" id="jStreak"></span></h2><div id="jBody"></div></div>
-  <div class="card"><h2><span>💸 Trickle · <span id="tkMonth"></span></span> <a class="ghost" style="color:var(--accent2);text-decoration:none;font-size:11px;text-transform:none;letter-spacing:0" href="https://firstlaboratory.github.io/expenses/" target="_blank" rel="noopener">Open →</a></h2><div id="tkBody"></div></div>
-  <div class="card"><h2>Training <span><button class="ghost" id="fitRefresh">↻</button> <button class="ghost" id="fitAll">All →</button></span></h2><div id="fitBody"></div></div>
-  <div class="card"><h2>Headlines <button class="ghost" data-go="news">All news →</button></h2><ul class="list news" id="homeNews"></ul>
+  <div data-tile="tamil" class="card" id="tamCard"><h2>🪔 தமிழ் நாள்காட்டி <span class="muted" style="text-transform:none;letter-spacing:0" id="tamYear"></span></h2><div id="tamBody"></div></div>
+  <div data-tile="upnext" class="card"><h2>Up next <button class="ghost" data-go="plan">Schedule →</button></h2><ul class="list tl" id="upNext"></ul></div>
+  <div data-tile="yt" class="card" id="ytCard"><h2>▶️ New on YouTube <span><button class="ghost" id="ytRef" title="Refresh">↻</button> <button class="ghost" data-go="news" data-ytgo="1">All →</button></span></h2><div id="ytHome"></div></div>
+  <div data-tile="markets" class="card" id="mkCard"><h2>Markets <span class="muted" style="text-transform:none;letter-spacing:0" id="mkUpd"></span></h2><div class="mk" id="mkBody"></div></div>
+  <div data-tile="travel" class="card" id="trHome"><h2>🚆 Travel <button class="ghost" data-go="plan" data-sub="travel">Search →</button></h2><div id="trHomeRoutes"></div></div>
+  <div data-tile="alerts" class="card" id="alertCard" style="display:none"><h2>Bills & occasions <button class="ghost" data-go="more" data-mtgo="bills">Manage →</button></h2><ul class="list" id="alertList"></ul></div>
+  <div data-tile="trip" class="card" id="tripCard" style="display:none"></div>
+  <div data-tile="hindi" class="card" id="hiCard"><h2>🔤 Hindi revision <span class="muted" style="text-transform:none;letter-spacing:0" id="hiLeft"></span></h2><div id="hiBody"></div></div>
+  <div data-tile="journal" class="card"><h2>📝 Journal <span class="muted" style="text-transform:none;letter-spacing:0" id="jStreak"></span></h2><div id="jBody"></div></div>
+  <div data-tile="trickle" class="card"><h2><span>💸 Trickle · <span id="tkMonth"></span></span> <a class="ghost" style="color:var(--accent2);text-decoration:none;font-size:11px;text-transform:none;letter-spacing:0" href="https://firstlaboratory.github.io/expenses/" target="_blank" rel="noopener">Open →</a></h2><div id="tkBody"></div></div>
+  <div data-tile="training" class="card"><h2>Training <span><button class="ghost" id="fitRefresh">↻</button> <button class="ghost" id="fitAll">All →</button></span></h2><div id="fitBody"></div></div>
+  <div data-tile="news" class="card"><h2>Headlines <button class="ghost" data-go="news">All news →</button></h2><ul class="list news" id="homeNews"></ul>
     <div id="homeTrends" style="margin-top:10px"></div></div>
-  <div class="card" id="homeReading"><h2>Currently reading <button class="ghost" data-go="read">Library →</button></h2><div id="readingNow"></div></div>
-  <div class="card"><h2>Countdowns <button class="ghost" data-act="addCountdown">+ Add</button></h2><div id="cdList"></div></div>
-  <div class="card"><h2>Due soon <button class="ghost" data-go="plan" data-sub="tasks">All tasks →</button></h2><ul class="list" id="dueList"></ul></div>
-  <div class="card"><h2>Today's habits <button class="ghost" data-go="more">Manage →</button></h2><ul class="list" id="habitToday"></ul></div>
-  <div class="card"><h2>Launch <button class="ghost" data-go="more">Edit →</button></h2><div class="apps" id="appsMini"></div></div>
-</section>
+  <div data-tile="reading" class="card" id="homeReading"><h2>Currently reading <button class="ghost" data-go="read">Library →</button></h2><div id="readingNow"></div></div>
+  <div data-tile="countdowns" class="card"><h2>Countdowns <button class="ghost" data-act="addCountdown">+ Add</button></h2><div id="cdList"></div></div>
+  <div data-tile="due" class="card"><h2>Due soon <button class="ghost" data-go="plan" data-sub="tasks">All tasks →</button></h2><ul class="list" id="dueList"></ul></div>
+  <div data-tile="habits" class="card"><h2>Today's habits <button class="ghost" data-go="more">Manage →</button></h2><ul class="list" id="habitToday"></ul></div>
+  <div data-tile="launch" class="card"><h2>Launch <button class="ghost" data-go="more">Edit →</button></h2><div class="apps" id="appsMini"></div></div>
+
+  <div id="homeCustom" style="text-align:center;margin:4px 0 12px"><button class="ghost" data-act="layout">⚙️ Customize home</button></div></section>
 
 <!-- NEWS -->
 <section class="view" id="v-news">
@@ -295,6 +297,7 @@ textarea{resize:vertical}
     <div class="row" style="margin-top:10px"><button class="primary" id="fitSave">Save &amp; test</button><button class="danger" id="fitOff">Disconnect</button></div>
     <div class="muted" id="fitStatus" style="margin-top:8px"></div>
   </div>
+  <div class="card"><h2>Home layout</h2><div class="muted" style="margin-bottom:8px">Reorder, show or hide the tiles on Home.</div><button data-act="layout">⚙️ Customize home</button></div>
   <div class="card"><h2>Appearance</h2>
     <div class="seg themeseg" id="themeSeg"><button data-theme-set="auto">Auto</button><button data-theme-set="light">☀️ Light</button><button data-theme-set="dark">🌙 Dark</button></div>
     <div class="muted" style="font-size:12px">Auto follows your phone's light/dark setting.</div>
@@ -311,7 +314,7 @@ textarea{resize:vertical}
     <div class="row" style="margin-top:8px"><label class="btn" style="text-align:center">Restore from file<input type="file" id="importFile" accept=".json,application/json" hidden></label><button id="pasteBtn">Paste backup</button></div>
   </div>
   <div class="card"><h2>Danger zone</h2><button class="danger" id="resetBtn">Reset everything</button></div>
-  <p class="muted" style="text-align:center">Command Centre v8 · firstlaboratory</p>
+  <p class="muted" style="text-align:center">Command Centre v9 · firstlaboratory</p>
   <div class="card"><h2>Live train timetable (RailRadar)</h2>
     <p class="muted" style="margin-top:0">Optional. Free key from railradar.in (100 searches/month; results are cached). Without it, Travel uses Google Maps, redBus and IRCTC links.</p>
     <input id="rrKey" type="password" autocomplete="off" placeholder="RailRadar API key"><div class="row" style="margin-top:8px"><button id="rrSave">Save key</button></div>
@@ -577,7 +580,7 @@ function render(){
     return `<li><div class="grow"><div class="row" style="justify-content:space-between"><div class="title">${esc(g.name)}</div><div class="mono muted shrink">${fmt(g.current)} / ${fmt(g.target)} ${esc(g.unit||'')}</div></div><div class="bar"><i style="width:${p}%"></i></div>
     <div class="row" style="margin-top:8px;justify-content:flex-start"><button class="shrink" data-goal-step="${g.id}" data-d="-1">−1</button><button class="shrink" data-goal-step="${g.id}" data-d="1">+1</button><button class="shrink" data-goal-set="${g.id}">Update</button><span></span><button class="ghost danger shrink" data-del-goal="${g.id}">remove</button></div></div></li>`}).join('')||'<li class="empty">No goals yet — e.g. "Run 50 km before the trek"</li>';
   $('#setName').value=S.name||'';$('#setCity').value=S.city?.name||'';
-  renderSchedule();renderReading();renderNews();renderHomeNews();renderFit();renderTrickle();renderExtras();renderYT();renderTravel();renderTamil();
+  renderSchedule();renderReading();renderNews();renderHomeNews();renderFit();renderTrickle();renderExtras();renderYT();renderTravel();renderTamil();applyLayout();
 }
 
 /* ---------- sheet ---------- */
@@ -1158,6 +1161,28 @@ function renderTamil(){const box=$('#tamBody');if(!box)return;let P;try{P=tamTod
     <div class="tam-row"><span>குளிகை</span><span>${tfmt(P.kuli[0])} – ${tfmt(P.kuli[1])}</span></div></div>
    ${up?`<div class="muted" style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;margin:12px 0 4px">Coming up</div>${up}`:''}
    <div class="muted" style="font-size:11px;margin-top:10px">Panchangam calculated for ${esc(S.city.name)} (Thirukanitha); may differ by a day from Vakya almanacs near month start. Muhurtham & festival dates: tamildot.com</div>`;}
+
+
+/* ================= Home layout (reorder / hide tiles) ================= */
+const TILES=[['capture','✍️ Quick capture'],['brief','🌅 Your day'],['wx','🌤️ Weather & today'],['tamil','🪔 Tamil calendar'],['upnext','📅 Up next'],['yt','▶️ YouTube'],['markets','📈 Markets'],['travel','🚆 Travel'],['alerts','🧾 Bills & occasions'],['trip','🧳 Trip'],['hindi','🔤 Hindi revision'],['journal','📝 Journal'],['trickle','💸 Trickle'],['training','🏃 Training'],['news','📰 Headlines'],['reading','📚 Currently reading'],['countdowns','⏳ Countdowns'],['due','✅ Due soon'],['habits','🔁 Today\'s habits'],['launch','🚀 Launch apps']];
+const DEF=TILES.map(t=>t[0]);
+function layoutOrder(){const saved=(S.layout&&S.layout.order||[]).filter(id=>DEF.includes(id));const out=saved.slice();
+  DEF.forEach((id,i)=>{if(out.includes(id))return;let j=-1;for(let k=i-1;k>=0;k--){j=out.indexOf(DEF[k]);if(j>=0)break;}out.splice(j+1,0,id);});return out;}
+function applyLayout(){const home=$('#v-home'),hid=(S.layout&&S.layout.hidden)||[],end=$('#homeCustom');
+  layoutOrder().forEach(id=>{const el=home.querySelector(`:scope > [data-tile="${id}"]`);if(el){home.insertBefore(el,end);el.classList.toggle('tile-off',hid.includes(id));}});}
+function layoutSheet(){const ord=layoutOrder(),hid=(S.layout&&S.layout.hidden)||[];const nm=Object.fromEntries(TILES);
+  sheet(`<h3>Customize home</h3><div class="muted" style="font-size:13px;margin-bottom:6px">Use ↑ ↓ to reorder. Untick to hide. Changes save instantly.</div>
+    <ul class="list lay">${ord.map((id,i)=>`<li class="${hid.includes(id)?'off':''}"><button type="button" class="chk ${hid.includes(id)?'':'on'}" data-lshow="${id}">${hid.includes(id)?'':'✓'}</button>
+      <div class="grow title">${esc(nm[id])}</div><button type="button" class="mv" data-lmv="${id}" data-d="-1" ${i===0?'disabled':''}>↑</button><button type="button" class="mv" data-lmv="${id}" data-d="1" ${i===ord.length-1?'disabled':''}>↓</button></li>`).join('')}</ul>
+    <div style="margin-top:12px"><button type="button" id="lReset">Reset to default</button></div>`,()=>{});
+  $('#sheetForm button[type=submit]').textContent='Done';
+  $('#lReset').onclick=()=>{S.layout={order:DEF.slice(),hidden:[]};save();applyLayout();layoutSheet();toast('Layout reset');};}
+function layoutSet(fn){const L={order:layoutOrder(),hidden:((S.layout&&S.layout.hidden)||[]).slice()};fn(L);S.layout=L;save();applyLayout();layoutSheet();}
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.lmv){layoutSet(L=>{const i=L.order.indexOf(d.lmv),j=i+(+d.d);if(j<0||j>=L.order.length)return;[L.order[i],L.order[j]]=[L.order[j],L.order[i]];});return;}
+  if(d.lshow){layoutSet(L=>{L.hidden=L.hidden.includes(d.lshow)?L.hidden.filter(x=>x!==d.lshow):L.hidden.concat(d.lshow);});return;}
+});
+ACTS.layout=()=>layoutSheet();
 
 /* ---------- boot ---------- */
 load();render();weather();loadNews();fitFetch();initSync();loadMarkets();loadTamil();$('#ytRef').onclick=()=>{toast('Refreshing YouTube…');loadYT(true);};setTimeout(()=>loadYT(),2500);setTimeout(()=>{let c=null;try{c=JSON.parse(localStorage.getItem(BK)||'null');}catch(e){}if(gemKey()&&!(c&&c.date===dkey()))aiBrief(false);},5000);go(location.hash.slice(1)||'home');
