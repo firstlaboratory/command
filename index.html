@@ -134,6 +134,25 @@ html[data-theme=light] .card{box-shadow:0 1px 3px rgba(20,30,45,.06)}
 html[data-theme=light] .dot{box-shadow:none}
 html[data-theme=light] .tag.Idea{border-color:#b7d7ef} html[data-theme=light] .tag.Reminder{border-color:#efd5a8}
 .themeseg{margin:0}
+.brief-ai{font-size:15px;line-height:1.5;margin-bottom:10px}
+.brief li{padding:6px 0;font-size:14px}
+.mk{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.mk div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px}
+.mk small{display:block;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px}
+.mk b{font-family:"JetBrains Mono",monospace;font-size:15px}
+.up{color:var(--accent)} .dn{color:var(--bad)}
+.flash{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center;cursor:pointer}
+.flash .hi{font-size:34px;font-weight:600} .flash .tr{color:var(--dim);margin-top:2px} .flash .en{font-size:18px;margin-top:10px;color:var(--accent)}
+.moods{display:flex;gap:6px;margin-bottom:8px} .moods button{font-size:22px;padding:4px 8px;background:none;border-radius:10px}
+.moods button.on{border-color:var(--accent);background:var(--panel2)}
+.tchk{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:14px} .tchk .grow{flex:1}
+.yt li{align-items:flex-start} .yt img{width:120px;height:68px;object-fit:cover;border-radius:8px;flex:0 0 120px;background:var(--bg)}
+.yt .title{font-size:14px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rt{display:inline-flex;align-items:center;gap:6px;margin:0 6px 8px 0;border-radius:20px;padding:7px 12px;font-size:13px}
+.trn .num{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--dim)}
+.trn .times{font-family:"JetBrains Mono",monospace;font-size:16px;font-weight:600}
+.trn .days span{font-size:10px;padding:1px 4px;border-radius:4px;color:var(--dim)} .trn .days span.on{color:var(--accent)}
+textarea{resize:vertical}
 .tk-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
 .tk-cat{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px}
 .tk-cat .nm{width:96px;flex:0 0 96px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -160,6 +179,7 @@ html[data-theme=light] .tag.Idea{border-color:#b7d7ef} html[data-theme=light] .t
       <button class="primary shrink" type="submit">Add</button>
     </form>
   </div>
+  <div class="card" id="briefCard"><h2>🌅 Your day <span><button class="ghost" id="briefAI" title="Write with AI">✨ AI brief</button></span></h2><div id="briefAiText" class="brief-ai" style="display:none"></div><ul class="list brief" id="briefList"></ul></div>
   <div class="grid2">
     <div class="card"><h2>Weather</h2><div id="wx" class="muted">Loading…</div></div>
     <div class="card"><h2>Today</h2>
@@ -170,6 +190,13 @@ html[data-theme=light] .tag.Idea{border-color:#b7d7ef} html[data-theme=light] .t
   </div>
   <div style="height:12px"></div>
   <div class="card"><h2>Up next <button class="ghost" data-go="plan">Schedule →</button></h2><ul class="list tl" id="upNext"></ul></div>
+  <div class="card" id="ytCard"><h2>▶️ New on YouTube <button class="ghost" data-go="news" data-ytgo="1">All →</button></h2><div id="ytHome"></div></div>
+  <div class="card" id="mkCard"><h2>Markets <span class="muted" style="text-transform:none;letter-spacing:0" id="mkUpd"></span></h2><div class="mk" id="mkBody"></div></div>
+  <div class="card" id="trHome"><h2>🚆 Travel <button class="ghost" data-go="plan" data-sub="travel">Search →</button></h2><div id="trHomeRoutes"></div></div>
+  <div class="card" id="alertCard" style="display:none"><h2>Bills & occasions <button class="ghost" data-go="more" data-mtgo="bills">Manage →</button></h2><ul class="list" id="alertList"></ul></div>
+  <div class="card" id="tripCard" style="display:none"></div>
+  <div class="card" id="hiCard"><h2>🔤 Hindi revision <span class="muted" style="text-transform:none;letter-spacing:0" id="hiLeft"></span></h2><div id="hiBody"></div></div>
+  <div class="card"><h2>📝 Journal <span class="muted" style="text-transform:none;letter-spacing:0" id="jStreak"></span></h2><div id="jBody"></div></div>
   <div class="card"><h2><span>💸 Trickle · <span id="tkMonth"></span></span> <a class="ghost" style="color:var(--accent2);text-decoration:none;font-size:11px;text-transform:none;letter-spacing:0" href="https://firstlaboratory.github.io/expenses/" target="_blank" rel="noopener">Open →</a></h2><div id="tkBody"></div></div>
   <div class="card"><h2>Training <span><button class="ghost" id="fitRefresh">↻</button> <button class="ghost" id="fitAll">All →</button></span></h2><div id="fitBody"></div></div>
   <div class="card"><h2>Headlines <button class="ghost" data-go="news">All news →</button></h2><ul class="list news" id="homeNews"></ul>
@@ -190,11 +217,25 @@ html[data-theme=light] .tag.Idea{border-color:#b7d7ef} html[data-theme=light] .t
 
 <!-- PLAN -->
 <section class="view" id="v-plan">
-  <div class="seg" id="planSeg"><button data-sub="schedule" class="on">Schedule</button><button data-sub="tasks">Tasks</button></div>
+  <div class="seg" id="planSeg"><button data-sub="schedule" class="on">Schedule</button><button data-sub="tasks">Tasks</button><button data-sub="travel">🚆 Travel</button></div>
   <div id="p-schedule">
     <div class="days" id="dayStrip"></div>
     <div class="card"><h2><span id="dayTitle">Today</span> <button class="ghost" data-act="addBlock">+ Add</button></h2><ul class="list tl" id="dayList"></ul></div>
     <div class="card"><h2>Due this day</h2><ul class="list" id="dayTasks"></ul></div>
+  </div>
+  <div id="p-travel" style="display:none">
+    <div class="card"><h2>Trains & buses</h2>
+      <form id="trForm">
+        <div class="row"><div><label class="muted" style="font-size:12px">From</label><input id="trFrom" list="stnList" placeholder="Chennai Central (MAS)" autocomplete="off"></div>
+          <button type="button" class="shrink" id="trSwap" style="margin-top:18px">⇅</button>
+          <div><label class="muted" style="font-size:12px">To</label><input id="trTo" list="stnList" placeholder="Ernakulam Jn (ERS)" autocomplete="off"></div></div>
+        <div class="row" style="margin-top:8px"><input type="date" id="trDate"><button class="primary shrink" type="submit">Search</button><button type="button" class="shrink" id="trSave" title="Save route">☆</button></div>
+      </form>
+      <datalist id="stnList"></datalist>
+      <div id="trLinks" style="margin-top:12px"></div>
+    </div>
+    <div class="card" id="trSaved"><h2>Saved routes</h2><div id="trRoutes"></div></div>
+    <div class="card" id="trResCard" style="display:none"><h2><span id="trResTitle">Trains</span> <span class="muted" style="text-transform:none;letter-spacing:0" id="trResMeta"></span></h2><div id="trRes"></div></div>
   </div>
   <div id="p-tasks" style="display:none">
     <div class="card"><h2>Inbox <button class="ghost" data-act="addTask">+ New</button></h2>
@@ -224,8 +265,17 @@ html[data-theme=light] .tag.Idea{border-color:#b7d7ef} html[data-theme=light] .t
 
 <!-- MORE -->
 <section class="view" id="v-more">
+  <div class="chips" id="moreTabs"><button data-mt="habits" class="on">Habits & goals</button><button data-mt="trips">Trips</button><button data-mt="bills">Bills</button><button data-mt="occ">Occasions</button><button data-mt="hindi">Hindi</button><button data-mt="journal">Journal</button><button data-mt="settings">Settings</button></div>
+  <div id="m-habits">
   <div class="card"><h2>Habits <button class="ghost" data-act="addHabit">+ Add</button></h2><ul class="list" id="habitList"></ul></div>
   <div class="card"><h2>Goals <button class="ghost" data-act="addGoal">+ Add</button></h2><ul class="list" id="goalList"></ul></div>
+  </div>
+  <div id="m-trips" style="display:none"><div class="card"><h2>Trips <button class="ghost" data-act="addTrip">+ Add</button></h2><ul class="list" id="tripList"></ul></div></div>
+  <div id="m-bills" style="display:none"><div class="card"><h2>Bills & subscriptions <button class="ghost" data-act="addBill">+ Add</button></h2><div class="muted" id="billTotal" style="margin-bottom:6px"></div><ul class="list" id="billList"></ul></div></div>
+  <div id="m-occ" style="display:none"><div class="card"><h2>Birthdays & occasions <button class="ghost" data-act="addOcc">+ Add</button></h2><ul class="list" id="occList"></ul></div></div>
+  <div id="m-hindi" style="display:none"><div class="card"><h2>Hindi words <button class="ghost" data-act="addWord">+ Add</button></h2><div class="muted" id="hiStats" style="margin-bottom:8px"></div><ul class="list" id="wordList"></ul></div></div>
+  <div id="m-journal" style="display:none"><div class="card"><h2>Journal</h2><ul class="list" id="journalList"></ul></div></div>
+  <div id="m-settings" style="display:none">
   <div class="card"><h2>My apps <span><button class="ghost" id="editApps">Edit</button> <button class="ghost" data-act="addApp">+ Add</button></span></h2><div class="apps" id="appsAll"></div></div>
   <div class="card"><h2>Sync across devices</h2>
     <p class="muted" style="margin-top:0">Sign in with Google to keep everything in sync on all your devices. Data is saved in a hidden app folder in <b>your own</b> Google Drive.</p>
@@ -257,7 +307,16 @@ html[data-theme=light] .tag.Idea{border-color:#b7d7ef} html[data-theme=light] .t
     <div class="row" style="margin-top:8px"><label class="btn" style="text-align:center">Restore from file<input type="file" id="importFile" accept=".json,application/json" hidden></label><button id="pasteBtn">Paste backup</button></div>
   </div>
   <div class="card"><h2>Danger zone</h2><button class="danger" id="resetBtn">Reset everything</button></div>
-  <p class="muted" style="text-align:center">Command Centre v5 · firstlaboratory</p>
+  <p class="muted" style="text-align:center">Command Centre v7 · firstlaboratory</p>
+  <div class="card"><h2>Live train timetable (RailRadar)</h2>
+    <p class="muted" style="margin-top:0">Optional. Free key from railradar.in (100 searches/month; results are cached). Without it, Travel uses Google Maps, redBus and IRCTC links.</p>
+    <input id="rrKey" type="password" autocomplete="off" placeholder="RailRadar API key"><div class="row" style="margin-top:8px"><button id="rrSave">Save key</button></div>
+    <div class="muted" id="rrStatus" style="margin-top:6px"></div></div>
+  <div class="card"><h2>AI (Gemini) for morning brief</h2>
+    <p class="muted" style="margin-top:0">Optional. Uses your Mozhi key automatically if Mozhi is set up on this device. Key stays on this device.</p>
+    <input id="gemKey" type="password" autocomplete="off" placeholder="Gemini API key (optional)"><div class="row" style="margin-top:8px"><button id="gemSave">Save key</button></div>
+    <div class="muted" id="gemStatus" style="margin-top:6px"></div></div>
+  </div>
 </section>
 </div>
 
@@ -305,7 +364,16 @@ const SEED={
     {id:'s1',title:'Hindi words',emoji:'🔤',start:'20:17',end:'',repeat:'daily',days:[],date:''},
     {id:'s2',title:'Reading time',emoji:'📖',start:'21:30',end:'22:00',repeat:'daily',days:[],date:''}
   ],
-  books:[], articles:[], readTarget:{}, newsCat:'india'
+  books:[], articles:[], readTarget:{}, newsCat:'india',
+  trips:[
+    {id:'tr1',name:'Kerala trip',emoji:'🌴',start:'2026-12-27',end:'2026-12-30',place:'Idukki',lat:9.85,lon:76.97,train:false,
+     plan:['Dec 27 · Chennai → Ernakulam (overnight)','Dec 28 · Ernakulam → Idukki · night stay in Idukki','Dec 29 · Evening to Kumily (or Vagamon)','Dec 30 · Morning to Theni/Madurai → back to Chennai'],
+     checklist:['Train/bus tickets','Hotel bookings','ID card','Phone charger & power bank','Light jacket (Idukki nights)','Rain cover / umbrella','Comfortable shoes','Personal medicines','Cash for small shops'].map((t,i)=>({id:'k'+i,t,done:false}))},
+    {id:'tr2',name:'Kedarkantha trek',emoji:'🏔️',start:'',end:'',place:'Sankri',lat:31.08,lon:78.18,train:true,plan:[],
+     checklist:['Trek booking & medical certificate','Trekking shoes (broken in)','Thermal inners (2 sets)','Fleece + down jacket','Waterproof shell & pants','Woollen cap, buff, gloves (2 pairs)','Woollen socks (3 pairs)','UV sunglasses','Headlamp + spare batteries','Two 1L water bottles','Trekking pole','Microspikes / gaiters','Backpack 40–50L + rain cover','Sunscreen & lip balm','Personal medicines','Power bank','ID proof (originals + copies)'].map((t,i)=>({id:'d'+i,t,done:false}))}
+  ],
+  bills:[], occasions:[], journal:{}, routes:[{from:'MAS',to:'ERS'},{from:'ERS',to:'MAS'}],
+  hindi:{daily:10,srs:{},words:[["पानी","paani","water",1],["घर","ghar","home",1],["खाना","khaana","food/to eat",1],["दोस्त","dost","friend",1],["काम","kaam","work",1],["माँ","maa","mother",2],["पिता","pita","father",2],["भाई","bhaai","brother",2],["बहन","behen","sister",2],["परिवार","parivaar","family",2],["रोटी","roti","flatbread",3],["दूध","doodh","milk",3],["चाय","chaay","tea",3],["फल","phal","fruit",3],["सब्ज़ी","sabzi","vegetable",3],["जाना","jaana","to go",4],["आना","aana","to come",4],["पीना","peena","to drink",4],["देखना","dekhna","to see/watch",4],["बोलना","bolna","to speak",4],["आज","aaj","today",5],["कल","kal","yesterday/tomorrow",5],["अभी","abhi","now",5],["सुबह","subah","morning",5],["रात","raat","night",5],["दुकान","dukaan","shop",6],["बाज़ार","baazaar","market",6],["पैसा","paisa","money",6],["रास्ता","raasta","road/way",6],["गाड़ी","gaadi","car/vehicle",6],["पास","paas","near",7],["दूर","door","far",7],["यहाँ","yahaan","here",7],["वहाँ","vahaan","there",7],["कहाँ","kahaan","where",7],["अच्छा","achchha","good",8],["बड़ा","bada","big",8],["छोटा","chhota","small",8],["नया","naya","new",8],["पुराना","puraana","old",8],["करना","karna","to do",9],["सोना","sona","to sleep",9],["लिखना","likhna","to write",9],["पढ़ना","padhna","to read/study",9],["समझना","samajhna","to understand",9],["दफ़्तर","daftar","office",10],["कुर्सी","kursi","chair",10],["मेज़","mez","table/desk",10],["समय","samay","time",10],["छुट्टी","chhutti","holiday/leave",10],["क्या","kya","what",11],["कौन","kaun","who",11],["क्यों","kyon","why",11],["कब","kab","when",11],["कैसे","kaise","how",11],["खुश","khush","happy",12],["थका","thaka","tired",12],["भूख","bhookh","hunger",12],["प्यास","pyaas","thirst",12],["बीमार","beemaar","sick",12],["गर्मी","garmi","heat/summer",13],["ठंड","thand","cold",13],["बारिश","baarish","rain",13],["धूप","dhoop","sunshine",13],["हवा","hawa","wind/air",13],["सिर","sir","head",14],["हाथ","haath","hand",14],["पैर","pair","foot/leg",14],["आँख","aankh","eye",14],["दिल","dil","heart",14],["एक","ek","one",15],["दो","do","two",15],["तीन","teen","three",15],["चार","chaar","four",15],["पाँच","paanch","five",15],["छह","chhah","six",16],["सात","saat","seven",16],["आठ","aath","eight",16],["नौ","nau","nine",16],["दस","das","ten",16],["खरीदना","khareedna","to buy",17],["बैठना","baithna","to sit",17],["रुकना","rukna","to stop/wait",17],["चलना","chalna","to walk/move",17],["सुनना","sunna","to listen",17],["कमरा","kamra","room",18],["दरवाज़ा","darwaaza","door",18],["खिड़की","khidki","window",18],["बिस्तर","bistar","bed",18],["किताब","kitaab","book",18],["कपड़ा","kapda","cloth/clothes",19],["कमीज़","kameez","shirt",19],["जूता","joota","shoe",19],["टोपी","topi","cap/hat",19],["पहनना","pehenna","to wear",19],["दिन","din","day",20],["घंटा","ghanta","hour",20],["हफ़्ता","hafta","week",20],["महीना","mahina","month",20],["साल","saal","year",20],["लाल","laal","red",21],["नीला","neela","blue",21],["हरा","hara","green",21],["पीला","peela","yellow",21],["सफ़ेद","safed","white",21],["बहुत","bahut","very/a lot",22],["थोड़ा","thoda","a little",22],["ज़्यादा","zyaada","more/too much",22],["कम","kam","less",22],["सब","sab","all/everyone",22],["शहर","shahar","city",23],["गाँव","gaanv","village",23],["सफ़र","safar","journey/trip",23],["पहुँचना","pahunchna","to reach/arrive",23],["लौटना","lautna","to return",23],["चावल","chaaval","rice",24],["नमक","namak","salt",24],["चीनी","cheeni","sugar",24],["मीठा","meetha","sweet",24],["तीखा","teekha","spicy",24],["मिलना","milna","to meet/get",25],["देना","dena","to give",25],["लेना","lena","to take",25],["रखना","rakhna","to keep/put",25],["भूलना","bhoolna","to forget",25],["आदमी","aadmi","man",26],["औरत","aurat","woman",26],["बच्चा","bachcha","child",26],["लड़का","ladka","boy",26],["लड़की","ladki","girl",26],["बर्तन","bartan","utensils/dishes",27],["चम्मच","chammach","spoon",27],["थाली","thaali","plate",27],["चाकू","chaaku","knife",27],["पकाना","pakaana","to cook",27],["शुरू","shuroo","start",28],["ख़त्म","khatm","finished/over",28],["जल्दी","jaldi","quickly/early",28],["देर","der","delay/late",28],["मदद","madad","help",28],["फ़ोन","phone","phone",29],["बात","baat","talk/matter",29],["पूछना","poochhna","to ask",29],["बताना","bataana","to tell",29],["जवाब","jawaab","answer/reply",29],["सीखना","seekhna","to learn",30],["खोलना","kholna","to open",30],["बंद करना","band karna","to close/switch off",30],["भेजना","bhejna","to send",30],["ढूँढना","dhoondhna","to search/look for",30],["अस्पताल","aspataal","hospital",31],["दवा","dawa","medicine",31],["दर्द","dard","pain",31],["बुखार","bukhaar","fever",31],["आराम","aaraam","rest/comfort",31],["नदी","nadi","river",32],["पहाड़","pahaad","mountain",32],["पेड़","ped","tree",32],["फूल","phool","flower",32],["समुद्र","samudra","sea/ocean",32],["आसान","aasaan","easy",33],["मुश्किल","mushkil","difficult",33],["सस्ता","sasta","cheap",33],["महँगा","mahanga","expensive",33],["साफ़","saaf","clean/clear",33],["टिकट","tikat","ticket",34],["रेलगाड़ी","relgaadi","train",34],["सामान","saamaan","luggage/things",34],["किराया","kiraaya","fare/rent",34],["इंतज़ार","intezaar","waiting",34]].map((w,i)=>({id:'w'+i,hi:w[0],tr:w[1],en:w[2],day:w[3]}))}
 };
 
 let S;
@@ -322,11 +390,21 @@ function tick(){const d=new Date();$('#clock').textContent=pad(d.getHours())+':'
 
 /* ---------- weather ---------- */
 const WMO={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],45:['🌫️','Fog'],48:['🌫️','Fog'],51:['🌦️','Drizzle'],53:['🌦️','Drizzle'],55:['🌦️','Drizzle'],61:['🌧️','Rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],80:['🌦️','Showers'],81:['🌧️','Showers'],82:['⛈️','Heavy showers'],95:['⛈️','Thunderstorm'],96:['⛈️','Thunderstorm'],99:['⛈️','Thunderstorm']};
+let W=null;
 async function weather(){const c=S.city,box=$('#wx');
-  try{const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1`);
+  try{const [r,q]=await Promise.all([
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset&timezone=auto&forecast_days=1`),
+      fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${c.lat}&longitude=${c.lon}&current=us_aqi,pm2_5`).catch(()=>null)]);
     const j=await r.json(),cur=j.current,dy=j.daily,w=WMO[cur.weather_code]||['🌡️',''];
-    box.innerHTML=`<div class="wx"><div class="ic">${w[0]}</div><div class="big mono">${Math.round(cur.temperature_2m)}°</div></div>
-      <div class="muted">${esc(c.name)} · ${w[1]}</div><div class="muted">H ${Math.round(dy.temperature_2m_max[0])}° L ${Math.round(dy.temperature_2m_min[0])}° · ☔ ${dy.precipitation_probability_max[0]??0}%</div>`;
+    let aqi=null;try{aqi=q&&q.ok?(await q.json()).current?.us_aqi:null;}catch(e){}
+    const hm=t=>t?t.slice(11,16):'';
+    W={temp:Math.round(cur.temperature_2m),icon:w[0],desc:w[1],max:Math.round(dy.temperature_2m_max[0]),min:Math.round(dy.temperature_2m_min[0]),rain:dy.precipitation_probability_max[0]??0,aqi,rise:hm(dy.sunrise[0]),set:hm(dy.sunset[0])};
+    const aq=aqi==null?'':aqi<=50?['Good','var(--accent)']:aqi<=100?['Moderate','var(--warn)']:aqi<=150?['Unhealthy (sensitive)','var(--warn)']:['Unhealthy','var(--bad)'];
+    box.innerHTML=`<div class="wx"><div class="ic">${w[0]}</div><div class="big mono">${W.temp}°</div></div>
+      <div class="muted">${esc(c.name)} · ${w[1]}</div><div class="muted">H ${W.max}° L ${W.min}° · ☔ ${W.rain}%</div>
+      ${aqi!=null?`<div class="muted">AQI <b style="color:${aq[1]}">${Math.round(aqi)}</b> ${aq[0]}</div>`:''}
+      <div class="muted">🌅 ${W.rise} · 🌇 ${W.set}</div>`;
+    renderBrief();
   }catch(e){box.innerHTML=`<div class="muted">${esc(c.name)}<br>Weather unavailable right now</div>`;}}
 
 /* ---------- news ---------- */
@@ -339,10 +417,11 @@ function newsItem(n,saveable=true){const saved=S.articles.some(a=>a.u===n.u);
   ${saveable?`<button class="ghost save shrink" data-save-news="${esc(n.u)}" title="Save for later">${saved?'🔖':'＋'}</button>`:''}</li>`;}
 function trendChips(list,n){return list.slice(0,n).map(t=>`<a class="trend" href="https://www.google.com/search?q=${encodeURIComponent(t.q)}" target="_blank" rel="noopener">${esc(t.q)}${t.traffic?` <small>${esc(t.traffic)}</small>`:''}</a>`).join('');}
 function renderNews(){
-  const cats=(NEWS?.categories||[]).concat(NEWS?.trends?.length?[{id:'trends',name:'🔥 Trending'}]:[]);
+  const cats=(NEWS?.categories||[]).concat(NEWS?.trends?.length?[{id:'trends',name:'🔥 Trending'}]:[]).concat(meta?.email?[{id:'yt',name:'▶️ YouTube'}]:[]);
   if(!cats.find(c=>c.id===S.newsCat)&&cats.length)S.newsCat=cats[0].id;
   $('#newsCats').innerHTML=cats.map(c=>`<button data-cat="${c.id}" class="${c.id===S.newsCat?'on':''}">${esc(c.name)}</button>`).join('');
   $('#newsUpdated').textContent=NEWS?.updated?'updated '+ago(NEWS.updated):'';
+  if(S.newsCat==='yt'){$('#newsTitle').textContent='New on YouTube';$('#newsUpdated').textContent=YTD?.at?'updated '+ago(YTD.at/1000):'';$('#newsBody').innerHTML=ytList(40);return;}
   if(!NEWS){$('#newsTitle').textContent='Headlines';$('#newsBody').innerHTML=newsErr?NEWS_WAIT:'<div class="muted">Loading…</div>';return;}
   if(S.newsCat==='trends'){$('#newsTitle').textContent='Trending in India';
     $('#newsBody').innerHTML='<p class="muted" style="margin-top:0">What India is searching right now (Google Trends)</p><ul class="list news">'+NEWS.trends.map(t=>`<li><div class="grow"><a class="title" href="https://www.google.com/search?q=${encodeURIComponent(t.q)}" target="_blank" rel="noopener">${esc(t.q)}</a>
@@ -494,7 +573,7 @@ function render(){
     return `<li><div class="grow"><div class="row" style="justify-content:space-between"><div class="title">${esc(g.name)}</div><div class="mono muted shrink">${fmt(g.current)} / ${fmt(g.target)} ${esc(g.unit||'')}</div></div><div class="bar"><i style="width:${p}%"></i></div>
     <div class="row" style="margin-top:8px;justify-content:flex-start"><button class="shrink" data-goal-step="${g.id}" data-d="-1">−1</button><button class="shrink" data-goal-step="${g.id}" data-d="1">+1</button><button class="shrink" data-goal-set="${g.id}">Update</button><span></span><button class="ghost danger shrink" data-del-goal="${g.id}">remove</button></div></div></li>`}).join('')||'<li class="empty">No goals yet — e.g. "Run 50 km before the trek"</li>';
   $('#setName').value=S.name||'';$('#setCity').value=S.city?.name||'';
-  renderSchedule();renderReading();renderNews();renderHomeNews();renderFit();renderTrickle();
+  renderSchedule();renderReading();renderNews();renderHomeNews();renderFit();renderTrickle();renderExtras();renderYT();renderTravel();
 }
 
 /* ---------- sheet ---------- */
@@ -559,7 +638,7 @@ const ACTS={
 /* ---------- navigation ---------- */
 const VIEWS=['home','news','plan','read','more'];
 function setSub(group,sub){
-  if(group==='plan'){document.querySelectorAll('#planSeg button').forEach(b=>b.classList.toggle('on',b.dataset.sub===sub));$('#p-schedule').style.display=sub==='schedule'?'':'none';$('#p-tasks').style.display=sub==='tasks'?'':'none';}
+  if(group==='plan'){document.querySelectorAll('#planSeg button').forEach(b=>b.classList.toggle('on',b.dataset.sub===sub));$('#p-schedule').style.display=sub==='schedule'?'':'none';$('#p-tasks').style.display=sub==='tasks'?'':'none';$('#p-travel').style.display=sub==='travel'?'':'none';}
   if(group==='read'){document.querySelectorAll('#readSeg button').forEach(b=>b.classList.toggle('on',b.dataset.sub===sub));$('#r-books').style.display=sub==='books'?'':'none';$('#r-articles').style.display=sub==='articles'?'':'none';}}
 function go(v,sub){if(!VIEWS.includes(v))v='home';
   VIEWS.forEach(x=>$('#v-'+x).classList.toggle('on',x===v));
@@ -632,6 +711,203 @@ $('#resetBtn').onclick=()=>confirmSheet('This wipes all your data on this device
 
 
 
+
+/* ================= Extras: brief, markets, bills, occasions, trips, Hindi, journal ================= */
+const addDays=(ds,n)=>{const d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+n);return dkey(d);};
+const niceD=ds=>new Date(ds+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+const inDays=n=>n<0?`${-n}d overdue`:n===0?'today':n===1?'tomorrow':`in ${n} days`;
+let moreTab='habits';
+function setMoreTab(t){moreTab=t;document.querySelectorAll('#moreTabs button').forEach(b=>b.classList.toggle('on',b.dataset.mt===t));
+  ['habits','trips','bills','occ','hindi','journal','settings'].forEach(x=>$('#m-'+x).style.display=x===t?'':'none');}
+
+/* ----- markets ----- */
+let MK=null;
+async function loadMarkets(){try{const r=await fetch('data/markets.json?'+Math.floor(Date.now()/6e5),{cache:'no-cache'});if(r.ok)MK=await r.json();}catch(e){}renderMarkets();}
+function renderMarkets(){const box=$('#mkBody');if(!MK){$('#mkCard').style.display='none';return;}$('#mkCard').style.display='';
+  const f=(v,d=0)=>Number(v).toLocaleString('en-IN',{maximumFractionDigits:d,minimumFractionDigits:d});
+  const tile=(n,v,chg)=>`<div><small>${n}</small><b>${v}</b>${chg!=null?` <span class="${chg>=0?'up':'dn'}" style="font-size:11px">${chg>=0?'▲':'▼'}${Math.abs(chg).toFixed(2)}%</span>`:''}</div>`;
+  const it=MK.items||[],c=MK.chennai||{};
+  box.innerHTML=it.map(i=>tile(i.name,i.id==='usdinr'?'₹'+f(i.price,2):i.id==='brent'?'$'+f(i.price,1):f(i.price),i.chg)).join('')
+    +(c.g22?tile('Gold 22K /g','₹'+f(c.g22)):'')+(c.g24?tile('Gold 24K /g','₹'+f(c.g24)):'')+(c.petrol?tile('Petrol /L','₹'+f(c.petrol,2)):'')+(c.diesel?tile('Diesel /L','₹'+f(c.diesel,2)):'');
+  $('#mkUpd').textContent=MK.updated?'updated '+ago(MK.updated)+' · fuel & gold: Chennai':'';}
+
+/* ----- bills ----- */
+const monthDue=(y,m,day)=>{const last=new Date(y,m+1,0).getDate();return `${y}-${pad(m+1)}-${pad(Math.min(day,last))}`;};
+function billDue(b){const created=b.created?dkey(new Date(b.created)):'0000';const now=new Date();let c=[];
+  if(b.freq==='monthly'){for(let k=-1;k<=1;k++){const d=new Date(now.getFullYear(),now.getMonth()+k,1);c.push(monthDue(d.getFullYear(),d.getMonth(),+b.day||1));}}
+  else if(b.freq==='yearly'){const md=(b.date||'').slice(5);for(let k=-1;k<=1;k++)c.push(`${now.getFullYear()+k}-${md}`);}
+  else c=[b.date];
+  return c.find(d=>d&&d>=created.slice(0,10)&&!(b.paid||{})[d])||null;}
+function billRow(b,home){const d=billDue(b);const n=d?daysTo(d):null;
+  return `<li><div style="font-size:20px;width:28px;text-align:center">${esc(b.emoji||'🧾')}</div><div class="grow"><div class="title">${esc(b.name)}</div>
+    <div class="muted" style="font-size:12px">${b.amount?inr.format(b.amount)+' · ':''}${b.freq==='monthly'?'Monthly':b.freq==='yearly'?'Yearly':'One-time'}${d?` · due ${niceD(d)} <span class="due ${n<0?'over':n<=3?'soon':''}">(${inDays(n)})</span>`:' · ✓ paid'}</div></div>
+    ${d?`<button class="shrink" data-bpaid="${b.id}" data-bd="${d}">Paid</button>`:''}${home?'':`<button class="ghost shrink" data-bedit="${b.id}">✎</button>`}</li>`;}
+function billForm(b){const isNew=!b;b=b||{name:'',emoji:'',amount:'',freq:'monthly',day:new Date().getDate(),date:dkey()};
+  sheet(`<h3>${isNew?'New bill':'Edit bill'}</h3><label>Name</label><input name="name" required value="${esc(b.name)}" placeholder="Airtel, Netflix, car insurance…">
+   <div class="row"><div><label>Emoji</label><input name="emoji" maxlength="4" value="${esc(b.emoji||'')}" placeholder="📱"></div><div><label>Amount ₹</label><input name="amount" type="number" min="0" value="${esc(b.amount||'')}"></div></div>
+   <label>Repeats</label><select name="freq" id="bFreq">${opt('monthly',b.freq,'Monthly')}${opt('yearly',b.freq,'Yearly')}${opt('once',b.freq,'One-time')}</select>
+   <div id="bDay"><label>Day of month</label><input name="day" type="number" min="1" max="31" value="${esc(b.day||1)}"></div>
+   <div id="bDate"><label>Due date</label><input name="date" type="date" value="${esc(b.date||dkey())}"></div>${isNew?'':delBtn('delX')}`,
+   fd=>{const v={name:fd.name.trim(),emoji:fd.emoji.trim(),amount:+fd.amount||0,freq:fd.freq,day:+fd.day||1,date:fd.date};
+     if(isNew)S.bills.push({id:uid(),...v,paid:{},created:Date.now()});else Object.assign(b,v);});
+  const sy=()=>{const f=$('#bFreq').value;$('#bDay').style.display=f==='monthly'?'':'none';$('#bDate').style.display=f==='monthly'?'none':'';};$('#bFreq').onchange=sy;sy();
+  if(!isNew)$('#delX').onclick=()=>{S.bills=S.bills.filter(x=>x.id!==b.id);save();closeSheet();render();};}
+
+/* ----- occasions ----- */
+function occNext(o){const y=new Date().getFullYear();let d=`${y}-${o.date}`;if(daysTo(d)<0)d=`${y+1}-${o.date}`;return d;}
+function occRow(o){const d=occNext(o),n=daysTo(d),age=o.year?(+d.slice(0,4))-(+o.year):null;
+  return `<li><div style="font-size:20px;width:28px;text-align:center">${esc(o.emoji||'🎂')}</div><div class="grow"><div class="title">${esc(o.name)}</div>
+   <div class="muted" style="font-size:12px">${niceD(d)}${age?` · ${o.emoji==='💍'?age+' years':'turns '+age}`:''} · <span class="due ${n<=3?'soon':''}">${n===0?'🎉 today!':inDays(n)}</span></div></div>
+   <button class="ghost shrink" data-oedit="${o.id}">✎</button></li>`;}
+function occForm(o){const isNew=!o;o=o||{name:'',emoji:'🎂',date:'',year:''};const full=o.date?`${o.year||'2000'}-${o.date}`:'';
+  sheet(`<h3>${isNew?'New occasion':'Edit occasion'}</h3><label>Name</label><input name="name" required value="${esc(o.name)}" placeholder="Amma's birthday">
+   <label>Type</label><select name="emoji">${opt('🎂',o.emoji,'🎂 Birthday')}${opt('💍',o.emoji,'💍 Anniversary')}${opt('🎉',o.emoji,'🎉 Other')}</select>
+   <label>Date</label><input name="date" type="date" required value="${esc(full)}"><label><input type="checkbox" name="noyear" ${o.date&&!o.year?'checked':''} style="width:auto"> Year unknown (don't show age)</label>${isNew?'':delBtn('delX')}`,
+   fd=>{const v={name:fd.name.trim(),emoji:fd.emoji,date:fd.date.slice(5),year:fd.noyear?'':fd.date.slice(0,4)};if(isNew)S.occasions.push({id:uid(),...v});else Object.assign(o,v);});
+  if(!isNew)$('#delX').onclick=()=>{S.occasions=S.occasions.filter(x=>x.id!==o.id);save();closeSheet();render();};}
+
+/* ----- trips ----- */
+const TW={};
+function tripState(t){if(!t.start)return null;const s=daysTo(t.start),e=daysTo(t.end||t.start);if(e<0)return null;return s>0?{when:'before',n:s}:{when:'during',day:1-s,len:daysTo(t.end||t.start)-s+1};}
+function activeTrip(){return S.trips.map(t=>({t,st:tripState(t)})).filter(x=>x.st&&(x.st.when==='during'||x.st.n<=60)).sort((a,b)=>a.t.start.localeCompare(b.t.start))[0];}
+async function tripWeather(t){if(TW[t.id]||t.lat==null)return;TW[t.id]='loading';
+  try{const j=await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${t.lat}&longitude=${t.lon}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=16`)).json();TW[t.id]=j;}catch(e){TW[t.id]=null;}renderTrip();}
+function trainStats(){if(!FIT)return null;const a=FIT.acts||[];return {n:a.length,km:a.reduce((s,x)=>s+(x.dist||0),0)/1000,el:a.reduce((s,x)=>s+(x.elev||0),0),hikes:a.filter(x=>/Hike|Walk|Run|TrailRun/.test(x.type)).length};}
+function renderTrip(){const card=$('#tripCard'),A=activeTrip();if(!A){card.style.display='none';return;}card.style.display='';const {t,st}=A;
+  const done=t.checklist.filter(c=>c.done).length,left=t.checklist.filter(c=>!c.done);
+  let wx='';const tw=TW[t.id];if(tw===undefined)tripWeather(t);
+  if(tw&&tw.daily){const days=tw.daily.time.map((d,i)=>({d,i})).filter(x=>x.d>=t.start&&x.d<=(t.end||t.start));
+    if(days.length)wx='<div class="row" style="gap:6px;overflow-x:auto;margin:8px 0">'+days.map(({d,i})=>`<div class="stat shrink" style="min-width:64px"><small>${niceD(d)}</small><div>${(WMO[tw.daily.weather_code[i]]||['🌡️'])[0]}</div><b style="font-size:14px">${Math.round(tw.daily.temperature_2m_max[i])}°/${Math.round(tw.daily.temperature_2m_min[i])}°</b></div>`).join('')+'</div>';
+    else if(tw.current)wx=`<div class="muted" style="margin:6px 0">Now in ${esc(t.place)}: ${(WMO[tw.current.weather_code]||['🌡️'])[0]} ${Math.round(tw.current.temperature_2m)}° (trip forecast appears 2 weeks before)</div>`;}
+  const ts=t.train&&trainStats();
+  card.innerHTML=`<h2>${esc(t.emoji||'🧳')} ${esc(t.name)} <button class="ghost" data-topen="${t.id}">Open →</button></h2>
+   <div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="big mono">${st.when==='before'?st.n:'Day '+st.day}</div><div class="muted">${st.when==='before'?(st.n===1?'day to go':'days to go'):'of '+st.len+' — enjoy! 🎒'}</div></div>
+   <div class="muted" style="text-align:right">${niceD(t.start)}${t.end&&t.end!==t.start?' – '+niceD(t.end):''}<br>📍 ${esc(t.place||'')}</div></div>${wx}
+   ${ts?`<div class="muted" style="font-size:13px;margin:6px 0">🏃 Training, last 4 weeks: <b>${ts.n}</b> workouts · <b>${ts.km.toFixed(0)}</b> km · <b>${fmt(Math.round(ts.el))}</b> m climb</div>`:''}
+   ${t.checklist.length?`<div class="muted" style="font-size:12px;margin-top:8px">Packing ${done}/${t.checklist.length}</div><div class="bar"><i style="width:${done/t.checklist.length*100}%"></i></div>
+     ${left.slice(0,4).map(c=>`<div class="tchk"><button class="chk" data-tchk="${t.id}" data-ci="${c.id}"></button>${esc(c.t)}</div>`).join('')}${left.length>4?`<div class="muted" style="font-size:12px">+${left.length-4} more</div>`:''}`:''}`;}
+function tripSheet(t){
+  const items=t.checklist.map(c=>`<div class="tchk"><button type="button" class="chk ${c.done?'on':''}" data-tchk="${t.id}" data-ci="${c.id}">${c.done?'✓':''}</button><span class="grow">${esc(c.t)}</span><button type="button" class="ghost danger" data-tdel="${t.id}" data-ci="${c.id}">✕</button></div>`).join('');
+  sheet(`<h3>${esc(t.emoji||'')} ${esc(t.name)}</h3>${t.plan.length?'<label>Plan</label>'+t.plan.map(p=>`<div style="padding:4px 0">• ${esc(p)}</div>`).join(''):''}
+    <label>Checklist</label><div id="tItems">${items||'<div class="empty">No items</div>'}</div>
+    <div class="row" style="margin-top:8px"><input id="tNew" placeholder="Add item"><button type="button" class="shrink" id="tAdd">Add</button></div>
+    <div style="margin-top:12px"><button type="button" id="tEdit">Edit trip details</button></div>`,()=>{});
+  $('#tAdd').onclick=()=>{const v=$('#tNew').value.trim();if(!v)return;t.checklist.push({id:uid(),t:v,done:false});save();render();tripSheet(t);};
+  $('#tEdit').onclick=()=>tripForm(t);}
+function tripForm(t){const isNew=!t;t=t||{name:'',emoji:'🧳',start:'',end:'',place:'',train:false,plan:[],checklist:[]};
+  sheet(`<h3>${isNew?'New trip':'Edit trip'}</h3><label>Name</label><input name="name" required value="${esc(t.name)}">
+   <div class="row"><div><label>Emoji</label><input name="emoji" maxlength="4" value="${esc(t.emoji||'')}"></div><div><label>Place (for weather)</label><input name="place" value="${esc(t.place||'')}" placeholder="Sankri"></div></div>
+   <div class="row"><div><label>Start</label><input type="date" name="start" value="${esc(t.start||'')}"></div><div><label>End</label><input type="date" name="end" value="${esc(t.end||'')}"></div></div>
+   <label><input type="checkbox" name="train" ${t.train?'checked':''} style="width:auto"> Show my training stats (trek/run prep)</label>
+   <label>Plan (one line per item)</label><textarea name="plan" rows="4">${esc(t.plan.join('\n'))}</textarea>${isNew?'':delBtn('delX')}`,
+   fd=>{const v={name:fd.name.trim(),emoji:fd.emoji.trim(),start:fd.start,end:fd.end&&fd.end>=fd.start?fd.end:fd.start,train:!!fd.train,plan:fd.plan.split('\n').map(x=>x.trim()).filter(Boolean)};
+     const placeChanged=(fd.place.trim()!==t.place);v.place=fd.place.trim();
+     if(isNew){t={id:uid(),...v,checklist:[],lat:null,lon:null};S.trips.push(t);}else Object.assign(t,v);
+     if(placeChanged&&v.place){fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&name='+encodeURIComponent(v.place)).then(r=>r.json()).then(j=>{const g=j.results&&j.results[0];if(g){t.lat=g.latitude;t.lon=g.longitude;delete TW[t.id];save();render();}}).catch(()=>{});}});
+  if(!isNew)$('#delX').onclick=()=>{S.trips=S.trips.filter(x=>x.id!==t.id);save();closeSheet();render();};}
+
+/* ----- Hindi spaced repetition ----- */
+const INT=[0,1,3,7,14,30];let hiQ=null,hiShow=false,hiDone=0;
+function hiQueue(){const H=S.hindi,t=dkey();const due=H.words.filter(w=>H.srs[w.id]&&H.srs[w.id].due<=t).sort((a,b)=>H.srs[a.id].due.localeCompare(H.srs[b.id].due));
+  const reviewedToday=Object.values(H.srs).filter(x=>x.last===t).length;const room=Math.max(0,(H.daily||10)-reviewedToday-due.length);
+  const fresh=H.words.filter(w=>!H.srs[w.id]).sort((a,b)=>a.day-b.day).slice(0,room);return due.concat(fresh).slice(0,Math.max(0,(H.daily||10)-reviewedToday)||due.length);}
+function renderHindi(){const box=$('#hiBody');if(!hiQ)hiQ=hiQueue();const w=hiQ[0];
+  const H=S.hindi,learned=Object.values(H.srs).filter(x=>x.b>=3).length;
+  $('#hiLeft').textContent=w?`${hiQ.length} left today`:'';
+  if(!w){box.innerHTML=`<div class="empty">✓ Done for today${hiDone?` — ${hiDone} reviewed`:''}. ${learned} of ${H.words.length} words well learned.</div>`;}
+  else box.innerHTML=`<div class="flash" data-hreveal="1"><div class="hi">${esc(w.hi)}</div><div class="tr">${esc(w.tr)}</div>${hiShow?`<div class="en">${esc(w.en)}</div>`:'<div class="muted" style="margin-top:10px;font-size:12px">Tap to reveal meaning</div>'}</div>
+    ${hiShow?`<div class="row" style="margin-top:10px"><button data-hf="${w.id}">😕 Forgot</button><button class="primary" data-hk="${w.id}">✓ Knew it</button></div>`:''}`;
+  $('#hiStats').textContent=`${H.words.length} words · ${learned} well learned · ${Object.keys(H.srs).length} started · ${H.daily||10} per day`;
+  $('#wordList').innerHTML=H.words.slice().reverse().map(x=>{const r=H.srs[x.id];return `<li><div class="grow"><div class="title">${esc(x.hi)} <span class="muted">${esc(x.tr)}</span></div><div class="muted" style="font-size:12px">${esc(x.en)}${r?` · box ${r.b}, next ${niceD(r.due)}`:' · new'}</div></div><button class="ghost shrink" data-wedit="${x.id}">✎</button></li>`;}).join('');}
+function hiAnswer(id,ok){const H=S.hindi,r=H.srs[id]||{b:0};const b=ok?Math.min(5,(r.b||0)+1):1;H.srs[id]={b,due:addDays(dkey(),ok?INT[b]:1),last:dkey()};
+  hiQ.shift();if(!ok)hiQ.push(H.words.find(w=>w.id===id));hiShow=false;hiDone++;save();renderHindi();renderBrief();}
+function wordForm(w){const isNew=!w;w=w||{hi:'',tr:'',en:''};
+  sheet(`<h3>${isNew?'Add word':'Edit word'}</h3><label>Hindi</label><input name="hi" required value="${esc(w.hi)}"><label>Transliteration</label><input name="tr" value="${esc(w.tr)}"><label>Meaning</label><input name="en" required value="${esc(w.en)}">
+   ${isNew?`<label>Words per day</label><input name="daily" type="number" min="3" max="50" value="${S.hindi.daily||10}">`:delBtn('delX')}`,
+   fd=>{if(isNew){if(fd.daily)S.hindi.daily=+fd.daily||10;S.hindi.words.push({id:uid(),hi:fd.hi.trim(),tr:fd.tr.trim(),en:fd.en.trim(),day:999});}else Object.assign(w,{hi:fd.hi.trim(),tr:fd.tr.trim(),en:fd.en.trim()});hiQ=null;});
+  if(!isNew)$('#delX').onclick=()=>{S.hindi.words=S.hindi.words.filter(x=>x.id!==w.id);delete S.hindi.srs[w.id];hiQ=null;save();closeSheet();render();};}
+
+/* ----- journal ----- */
+const MOODS=['😄','🙂','😐','😕','😢'];let jEdit=false;
+function onThisDay(){const t=dkey(),md=t.slice(5),J=S.journal;
+  const ly=Object.keys(J).filter(k=>k.slice(5)===md&&k<t).sort().reverse()[0];if(ly)return [ly,`On this day, ${ly.slice(0,4)}`];
+  const m1=addDays(t,-30),w1=addDays(t,-7);if(J[m1])return [m1,'A month ago'];if(J[w1])return [w1,'A week ago'];return null;}
+function renderJournal(){const box=$('#jBody'),t=dkey(),e=S.journal[t];
+  let st=0;for(let d=e?t:addDays(t,-1);S.journal[d];d=addDays(d,-1))st++;$('#jStreak').textContent=st>1?`🔥 ${st} days`:'';
+  const otd=onThisDay();
+  box.innerHTML=(e&&e.t&&!jEdit?`<div style="font-size:15px">${esc(e.m||'')} ${esc(e.t||'')}</div><button class="ghost" id="jEditBtn" style="margin-top:6px">Edit</button>`
+    :`<div class="moods">${MOODS.map(m=>`<button data-mood="${m}" class="${e&&e.m===m?'on':''}">${m}</button>`).join('')}</div>
+      <form id="jForm" class="row"><input id="jIn" maxlength="280" placeholder="One line about today…" value="${esc(e?.t||'')}"><button class="primary shrink">Save</button></form>`)
+   +(otd?`<div class="muted" style="margin-top:10px;font-size:13px">🕰️ ${otd[1]}: ${esc(S.journal[otd[0]].m||'')} ${esc(S.journal[otd[0]].t||'')}</div>`:'');
+  const f=$('#jForm');if(f)f.onsubmit=ev=>{ev.preventDefault();const v=$('#jIn').value.trim();const cur=S.journal[t]||{};if(!v&&!cur.m)return;S.journal[t]={...cur,t:v,at:Date.now()};jEdit=false;save();renderJournal();toast('Saved 📝');};
+  const eb=$('#jEditBtn');if(eb)eb.onclick=()=>{jEdit=true;renderJournal();};
+  $('#journalList').innerHTML=Object.keys(S.journal).sort().reverse().map(k=>`<li><div class="grow"><div class="muted" style="font-size:12px">${new Date(k+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</div><div>${esc(S.journal[k].m||'')} ${esc(S.journal[k].t||'')}</div></div></li>`).join('')||'<li class="empty">No entries yet</li>';}
+
+/* ----- alerts (bills due ≤7d, occasions ≤14d) ----- */
+function renderAlerts(){const bills=S.bills.filter(b=>{const d=billDue(b);return d&&daysTo(d)<=7;}).sort((a,b)=>billDue(a).localeCompare(billDue(b)));
+  const occ=S.occasions.filter(o=>daysTo(occNext(o))<=14).sort((a,b)=>occNext(a).localeCompare(occNext(b)));
+  $('#alertCard').style.display=bills.length||occ.length?'':'none';
+  $('#alertList').innerHTML=bills.map(b=>billRow(b,true)).join('')+occ.map(occRow).join('');
+  $('#billList').innerHTML=S.bills.slice().sort((a,b)=>(billDue(a)||'9').localeCompare(billDue(b)||'9')).map(b=>billRow(b,false)).join('')||'<li class="empty">Add EMI, phone, internet, OTT, insurance…</li>';
+  const mo=S.bills.reduce((s,b)=>s+(b.freq==='monthly'?b.amount:b.freq==='yearly'?b.amount/12:0),0);$('#billTotal').textContent=mo?`≈ ${inr.format(mo)} per month in recurring bills`:'';
+  $('#occList').innerHTML=S.occasions.slice().sort((a,b)=>occNext(a).localeCompare(occNext(b))).map(occRow).join('')||'<li class="empty">Add birthdays and anniversaries</li>';
+  $('#tripList').innerHTML=S.trips.slice().sort((a,b)=>(a.start||'9').localeCompare(b.start||'9')).map(t=>`<li><div style="font-size:20px;width:28px;text-align:center">${esc(t.emoji||'🧳')}</div><div class="grow"><div class="title">${esc(t.name)}</div><div class="muted" style="font-size:12px">${t.start?niceD(t.start)+(t.end&&t.end!==t.start?' – '+niceD(t.end):'')+' · '+(daysTo(t.end||t.start)<0?'done':inDays(daysTo(t.start))):'<span style="color:var(--warn)">Set dates to show on Home</span>'} · packed ${t.checklist.filter(c=>c.done).length}/${t.checklist.length}</div></div><button class="ghost shrink" data-topen="${t.id}">Open</button><button class="ghost shrink" data-tedit="${t.id}">✎</button></li>`).join('');}
+
+/* ----- morning brief ----- */
+const GK='cmdcentre.gemkey',BK='cmdcentre.brief';
+function gemKey(){let k='';try{k=localStorage.getItem(GK)||'';if(!k){const m=JSON.parse(localStorage.getItem('mozhi.v1')||'null');k=(m&&m.key)||'';}}catch(e){}return k;}
+function briefFacts(){const F=[],t=dkey(),n=nowHM();
+  if(W)F.push(['🌤️',`${W.temp}° ${W.desc.toLowerCase()} in ${S.city.name}, high ${W.max}°${W.rain>=40?`, ☔ ${W.rain}% chance of rain`:''}${W.aqi!=null&&W.aqi>100?`, AQI ${Math.round(W.aqi)} — mask up`:''}`]);
+  const up=blocksFor(new Date()).filter(b=>(b.end||b.start)>=n);if(up.length)F.push(['📅',`Next: ${up[0].title} at ${up[0].start}${up.length>1?` (+${up.length-1} more today)`:''}`]);
+  const due=S.tasks.filter(x=>!x.done&&x.due&&x.due<=t);if(due.length)F.push(['✅',`${due.length} task${due.length>1?'s':''} due${due.some(x=>x.due<t)?' (some overdue)':''}: ${due.slice(0,2).map(x=>x.text).join(', ')}`]);
+  S.bills.forEach(b=>{const d=billDue(b);if(d&&daysTo(d)<=3)F.push(['🧾',`${b.name}${b.amount?' '+inr.format(b.amount):''} due ${inDays(daysTo(d))}`]);});
+  S.occasions.forEach(o=>{const k=daysTo(occNext(o));if(k<=7)F.push([o.emoji||'🎂',`${o.name} ${k===0?'is today!':inDays(k)}`]);});
+  const A=activeTrip();if(A)F.push([A.t.emoji||'🧳',A.st.when==='before'?`${A.t.name} in ${A.st.n} days — packed ${A.t.checklist.filter(c=>c.done).length}/${A.t.checklist.length}`:`${A.t.name}: day ${A.st.day} of ${A.st.len}`]);
+  if(FIT&&FIT.well){const w=FIT.well.filter(x=>x.ctl!=null).slice(-1)[0];if(w){const f=Math.round(w.ctl-w.atl);F.push(['🏃',`Training form ${f>0?'+':''}${f}${f<-20?' — take it easy today':f>5?' — fresh, good day for a hard session':''}`]);}}
+  const T=lsGet('trickle_summary');if(T&&T.month===t.slice(0,7))F.push(['💸',`${inr.format(T.spent)} spent this month${T.budget?` of ${inr.format(T.budget)}`:''}`]);
+  const hq=hiQ||hiQueue();if(hq.length)F.push(['🔤',`${hq.length} Hindi words to revise`]);
+  const top=NEWS?.categories?.[0]?.items?.[0];if(top)F.push(['📰',top.t]);
+  return F;}
+function renderBrief(){const F=briefFacts();$('#briefList').innerHTML=F.map(([i,x])=>`<li><span style="width:24px;display:inline-block">${i}</span>${esc(x)}</li>`).join('')||'<li class="empty">All clear today ✨</li>';
+  let c=null;try{c=JSON.parse(localStorage.getItem(BK)||'null');}catch(e){}
+  const el=$('#briefAiText');if(c&&c.date===dkey()){el.style.display='';el.textContent=c.text;}else el.style.display='none';
+  $('#briefAI').style.display=gemKey()?'':'none';}
+async function aiBrief(manual){const key=gemKey();if(!key)return;const F=briefFacts();if(!F.length)return;
+  const el=$('#briefAiText');el.style.display='';el.textContent='✨ Writing your brief…';
+  const h=new Date().getHours(),part=h<12?'morning':h<17?'afternoon':'evening';
+  const prompt=`Write a warm, upbeat ${part} brief for ${S.name||'me'} in 2–3 short sentences (max 60 words), second person, plain text, no lists, no markdown. Prioritise what needs action. Facts:\n`+F.map(f=>'- '+f[1]).join('\n');
+  for(const m of ['gemini-flash-latest','gemini-2.5-flash','gemini-flash-lite-latest','gemini-2.0-flash']){
+    try{const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:.7}})});
+      if(r.status===404||r.status===429||r.status>=500)continue;const j=await r.json();if(!r.ok)throw new Error(j.error?.message||r.status);
+      const text=(j.candidates?.[0]?.content?.parts||[]).filter(p=>!p.thought).map(p=>p.text||'').join('').trim();if(!text)continue;
+      try{localStorage.setItem(BK,JSON.stringify({date:dkey(),text}));}catch(e){}el.textContent=text;return;}
+    catch(e){el.textContent='⚠️ AI brief failed: '+e.message;return;}}
+  el.textContent=manual?'⚠️ Gemini is busy — try again in a minute':'';if(!manual)el.style.display='none';}
+
+function renderExtras(){renderBrief();renderMarkets();renderAlerts();renderTrip();renderHindi();renderJournal();
+  const k=gemKey();$('#gemStatus').textContent=k?(localStorage.getItem(GK)?'✓ Key saved':'✓ Using your Mozhi key'):'No key — the brief shows as a list';}
+
+/* ----- events for extras ----- */
+document.addEventListener('click',e=>{const b=e.target.closest('button,[data-hreveal]');if(!b)return;const d=b.dataset;
+  if(d.mt){setMoreTab(d.mt);return;}
+  if(d.mtgo){setTimeout(()=>setMoreTab(d.mtgo),0);return;}
+  if(d.bpaid){const x=S.bills.find(y=>y.id===d.bpaid);x.paid=x.paid||{};x.paid[d.bd]=Date.now();save();render();toast('Marked paid ✓');return;}
+  if(d.bedit){billForm(S.bills.find(y=>y.id===d.bedit));return;}
+  if(d.oedit){occForm(S.occasions.find(y=>y.id===d.oedit));return;}
+  if(d.tedit){tripForm(S.trips.find(y=>y.id===d.tedit));return;}
+  if(d.topen){tripSheet(S.trips.find(y=>y.id===d.topen));return;}
+  if(d.tchk){const t=S.trips.find(y=>y.id===d.tchk),c=t.checklist.find(y=>y.id===d.ci);c.done=!c.done;save();render();if($('#sheetBg').classList.contains('on')&&$('#tItems'))tripSheet(t);return;}
+  if(d.tdel){const t=S.trips.find(y=>y.id===d.tdel);t.checklist=t.checklist.filter(y=>y.id!==d.ci);save();render();tripSheet(t);return;}
+  if(d.hreveal){hiShow=!hiShow;renderHindi();return;}
+  if(d.hk){hiAnswer(d.hk,true);return;}
+  if(d.hf){hiAnswer(d.hf,false);return;}
+  if(d.wedit){wordForm(S.hindi.words.find(y=>y.id===d.wedit));return;}
+  if(d.mood){const t=dkey();S.journal[t]={...(S.journal[t]||{}),m:d.mood,at:Date.now()};save();renderJournal();return;}
+});
+ACTS.addBill=()=>billForm();ACTS.addOcc=()=>occForm();ACTS.addTrip=()=>tripForm();ACTS.addWord=()=>wordForm();
+$('#briefAI').onclick=()=>aiBrief(true);
+$('#gemSave').onclick=()=>{const v=$('#gemKey').value.trim();try{v?localStorage.setItem(GK,v):localStorage.removeItem(GK);}catch(e){}$('#gemKey').value='';renderExtras();toast(v?'Key saved':'Key removed');};
+
 /* ---------- theme ---------- */
 const THK='cmdcentre.theme';const mq=matchMedia('(prefers-color-scheme: light)');
 function applyTheme(){let t='auto';try{t=localStorage.getItem(THK)||'auto';}catch(e){}
@@ -662,7 +938,7 @@ function renderTrickle(){const box=$('#tkBody');if(!box)return;const now=new Dat
 /* ---------- Google Drive sync (appDataFolder) ---------- */
 const CLIENT_ID_DEFAULT='297566847990-1112ps2i81fkjrpqntegoqtafun390gt.apps.googleusercontent.com';
 const SM='cmdcentre.syncmeta', FILE='command-centre.json';
-const SCOPE='https://www.googleapis.com/auth/drive.appdata email';
+const SCOPE='https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/youtube.readonly email';
 const ID_ARRAYS=['apps','tasks','countdowns','habits','goals','schedule','books','articles'];
 let meta=lsGet(SM)||{}; const saveMeta=()=>lsSet(SM,meta);
 let tok=null,tokExp=0,tc=null,pushT=null,syncing=false,syncErr='';
@@ -729,10 +1005,89 @@ function initSync(){
   setInterval(()=>{if(meta.email&&!document.hidden)syncNow();},5*60000);
   setInterval(syncLabel,30000);}
 
+
+/* ================= YouTube: new uploads from my subscriptions ================= */
+const YK='cmdcentre.yt';let YTD=lsGet(YK),ytErr='',ytBusy=false;
+async function ytGet(path){const t=await getToken(false);const r=await fetch('https://www.googleapis.com/youtube/v3/'+path,{headers:{Authorization:'Bearer '+t}});
+  if(r.ok)return r.json();const j=await r.json().catch(()=>({}));const reason=j.error?.errors?.[0]?.reason||'',msg=j.error?.message||('YouTube error '+r.status);
+  if(r.status===401){tok=null;throw new Error('Session expired — tap Reconnect Google in More → Settings');}
+  if(/accessNotConfigured|SERVICE_DISABLED/i.test(reason+msg))throw new Error('Enable "YouTube Data API v3" in your Google Cloud project, then refresh');
+  if(r.status===403&&/insufficient|scope/i.test(reason+msg)){tok=null;throw new Error('Tap "Reconnect Google" in More → Settings to allow YouTube');}
+  throw new Error(msg);}
+async function loadYT(force){if(!meta.email){renderYT();return;}if(ytBusy)return;if(!force&&YTD&&Date.now()-YTD.at<2*3600e3){renderYT();return;}
+  ytBusy=true;ytErr='';renderYT();
+  try{let subs=[],pt='';for(let i=0;i<6;i++){const j=await ytGet('subscriptions?mine=true&part=snippet&maxResults=50'+(pt?'&pageToken='+pt:''));subs=subs.concat(j.items||[]);pt=j.nextPageToken;if(!pt)break;}
+    const ch=subs.map(s=>s.snippet.resourceId.channelId).filter(Boolean);const since=Date.now()-7*864e5;let vids=[];
+    for(let i=0;i<ch.length;i+=10){const part=await Promise.all(ch.slice(i,i+10).map(id=>ytGet('playlistItems?part=snippet,contentDetails&maxResults=4&playlistId=UU'+id.slice(2)).catch(()=>({items:[]}))));
+      part.forEach(j=>(j.items||[]).forEach(v=>{const sn=v.snippet,p=v.contentDetails?.videoPublishedAt||sn.publishedAt;if(Date.parse(p)>since&&sn.title!=='Private video')vids.push({id:v.contentDetails.videoId,t:sn.title,c:sn.videoOwnerChannelTitle||sn.channelTitle,p:Date.parse(p),th:sn.thumbnails?.medium?.url||sn.thumbnails?.default?.url||''});}));}
+    vids.sort((a,b)=>b.p-a.p);YTD={at:Date.now(),items:vids.slice(0,60),subs:ch.length};lsSet(YK,YTD);
+  }catch(e){ytErr=e.message;}
+  ytBusy=false;renderYT();}
+function ytList(n){if(!meta.email)return '<div class="empty">Sign in with Google (More → Settings → Sync) to see new videos from your subscriptions.</div>';
+  if(!YTD)return `<div class="muted">${ytBusy?'Loading your subscriptions…':ytErr?'⚠️ '+esc(ytErr):''}</div>`;
+  return (ytErr?`<div class="muted" style="font-size:12px;margin-bottom:6px">⚠️ ${esc(ytErr)}</div>`:'')+'<ul class="list yt">'+YTD.items.slice(0,n).map(v=>`<li><a href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener"><img src="${esc(v.th)}" alt="" loading="lazy"></a>
+    <div class="grow"><a class="title" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${esc(v.t)}</a><div class="muted" style="font-size:12px;margin-top:4px">${esc(v.c)} · ${ago(v.p/1000)}</div></div></li>`).join('')+'</ul>'
+    +(YTD.items.length?'':'<div class="empty">No new uploads from your subscriptions this week</div>');}
+function renderYT(){const c=$('#ytCard');if(!c)return;c.style.display=meta.email?'':'none';$('#ytHome').innerHTML=ytList(4);if(S.newsCat==='yt'&&$('#v-news').classList.contains('on'))renderNews();}
+
+/* ================= Transport ================= */
+const STN=[['MAS','Chennai Central','Chennai'],['MS','Chennai Egmore','Chennai'],['TBM','Tambaram','Chennai'],['ERS','Ernakulam Jn','Ernakulam'],['ERN','Ernakulam Town','Ernakulam'],['AWY','Aluva','Aluva'],['KTYM','Kottayam','Kottayam'],['TCR','Thrissur','Thrissur'],['TVC','Thiruvananthapuram Central','Thiruvananthapuram'],['QLN','Kollam Jn','Kollam'],['CLT','Kozhikode','Kozhikode'],['PGT','Palakkad Jn','Palakkad'],['CBE','Coimbatore Jn','Coimbatore'],['MDU','Madurai Jn','Madurai'],['TPJ','Tiruchchirappalli Jn','Trichy'],['TJ','Thanjavur Jn','Thanjavur'],['SA','Salem Jn','Salem'],['ED','Erode Jn','Erode'],['DG','Dindigul Jn','Dindigul'],['TEN','Tirunelveli Jn','Tirunelveli'],['NCJ','Nagercoil Jn','Nagercoil'],['CAPE','Kanniyakumari','Kanyakumari'],['RMM','Rameswaram','Rameswaram'],['PDY','Puducherry','Puducherry'],['VM','Villupuram Jn','Villupuram'],['KPD','Katpadi Jn','Vellore'],['JTJ','Jolarpettai Jn','Jolarpettai'],['TPTY','Tirupati','Tirupati'],['SBC','KSR Bengaluru','Bengaluru'],['YPR','Yesvantpur Jn','Bengaluru'],['BNC','Bengaluru Cantt','Bengaluru'],['MYS','Mysuru Jn','Mysuru'],['MAQ','Mangaluru Central','Mangaluru'],['HYB','Hyderabad Deccan','Hyderabad'],['SC','Secunderabad Jn','Hyderabad'],['BZA','Vijayawada Jn','Vijayawada'],['CSMT','Mumbai CSMT','Mumbai'],['NDLS','New Delhi','Delhi'],['DDN','Dehradun','Dehradun'],['HW','Haridwar Jn','Haridwar'],['HWH','Howrah Jn','Kolkata']];
+const stnLabel=c=>{const x=STN.find(s=>s[0]===c);return x?`${x[1]} (${x[0]})`:c;};
+function parseStn(v){v=(v||'').trim();const m=v.match(/\(([A-Z]{1,6})\)\s*$/);if(m)return {code:m[1],city:(STN.find(s=>s[0]===m[1])||[0,0,v.replace(/\s*\(.*\)\s*$/,'')])[2]};
+  if(/^[A-Za-z]{2,5}$/.test(v)){const x=STN.find(s=>s[0]===v.toUpperCase());if(x)return {code:x[0],city:x[2]};}
+  const x=STN.find(s=>s[1].toLowerCase()===v.toLowerCase()||s[2].toLowerCase()===v.toLowerCase());return x?{code:x[0],city:x[2]}:{code:null,city:v};}
+const RRK='cmdcentre.rrkey';const rrKey=()=>{try{return localStorage.getItem(RRK)||'';}catch(e){return '';}};
+function trLinks(f,t,date){const fc=f.city,tc=t.city,slug=x=>x.toLowerCase().replace(/[^a-z]+/g,'-').replace(/^-|-$/g,'');
+  const ddmm=date.split('-').reverse().join('-');
+  return `<a class="btn rt" href="https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(fc)}&destination=${encodeURIComponent(tc)}&travelmode=transit" target="_blank" rel="noopener">🗺️ Maps: trains & buses</a>
+   <a class="btn rt" href="https://www.redbus.in/bus-tickets/${slug(fc)}-to-${slug(tc)}?onward=${ddmm}" target="_blank" rel="noopener">🚌 redBus</a>
+   <a class="btn rt" href="https://www.tnstc.in/" target="_blank" rel="noopener">🚌 TNSTC / SETC</a>
+   <a class="btn rt" href="https://www.irctc.co.in/nget/train-search" target="_blank" rel="noopener">🚆 IRCTC</a>`;}
+let trLast=null;
+async function trSearch(){const f=parseStn($('#trFrom').value),t=parseStn($('#trTo').value),date=$('#trDate').value||dkey();
+  if(!f.city||!t.city){toast('Enter From and To');return;}
+  $('#trLinks').innerHTML=trLinks(f,t,date);trLast={f,t,date};
+  const card=$('#trResCard'),res=$('#trRes');
+  if(!rrKey()){card.style.display='';$('#trResTitle').textContent='Trains';$('#trResMeta').textContent='';res.innerHTML='<div class="notice">Add a free RailRadar key in More → Settings to list trains here with timings. Meanwhile, use the buttons above.</div>';return;}
+  if(!f.code||!t.code){card.style.display='';res.innerHTML='<div class="notice">Pick stations from the list (with code, e.g. "Chennai Central (MAS)") to see trains.</div>';return;}
+  card.style.display='';$('#trResTitle').textContent=`${f.code} → ${t.code}`;$('#trResMeta').textContent=new Date(date+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+  const ck='cmdcentre.rr:'+f.code+':'+t.code+':'+date;let data=lsGet(ck);
+  if(!data){res.innerHTML='<div class="muted">Finding trains…</div>';
+    try{const r=await fetch(`https://api.railradar.in/v1/trains/between/${encodeURIComponent(f.code)}/${encodeURIComponent(t.code)}?date=${date}&byCity=true`,{headers:{'X-Api-Key':rrKey()}});
+      const j=await r.json().catch(()=>({}));if(!r.ok||!j.success)throw new Error(j.error?.message||j.message||('RailRadar error '+r.status));
+      data={at:Date.now(),trains:j.data.trains||[]};lsSet(ck,data);
+      try{Object.keys(localStorage).filter(k=>k.startsWith('cmdcentre.rr:')&&k.split(':')[3]<dkey()).forEach(k=>localStorage.removeItem(k));}catch(e){}
+    }catch(e){res.innerHTML=`<div class="notice">⚠️ ${esc(e.message==='Failed to fetch'?'Could not reach RailRadar from the browser':e.message)}. Use the buttons above.</div>`;return;}}
+  const isToday=date===dkey(),now=nowHM(),DAYS=['mon','tue','wed','thu','fri','sat','sun'];
+  const L=data.trains.slice().sort((a,b)=>(a.from.departure||'').localeCompare(b.from.departure||''));
+  res.innerHTML=L.length?'<ul class="list trn">'+L.map(x=>{const gone=isToday&&x.from.departure<now,h=Math.floor(x.duration/60),m=x.duration%60,dd=(x.to.day||1)-(x.from.day||1);
+    return `<li style="${gone?'opacity:.45':''}"><div class="grow"><div><span class="num">${esc(x.train.number)}</span> ${esc(x.train.name)}</div>
+      <div class="times">${esc(x.from.departure)} → ${esc(x.to.arrival)}${dd>0?`<sup style="font-size:10px;color:var(--warn)">+${dd}</sup>`:''} <span class="muted" style="font-size:12px;font-weight:400">${h}h ${pad(m)}m</span></div>
+      <div class="muted" style="font-size:12px">${esc(x.from.name)} → ${esc(x.to.name)}${gone?' · departed':''}</div>
+      <div class="days">${DAYS.map(d=>`<span class="${(x.train.runDays||[]).includes(d)?'on':''}">${d[0].toUpperCase()}</span>`).join('')}</div></div></li>`;}).join('')+'</ul>'
+    :'<div class="empty">No direct trains on this date. Try nearby stations or the Maps button.</div>';}
+function renderTravel(){const R=S.routes||[];
+  const chip=(r,i)=>`<button class="rt" data-route="${i}">${esc(r.from)} → ${esc(r.to)}</button>`;
+  $('#trRoutes').innerHTML=R.map((r,i)=>chip(r,i)+`<button class="ghost danger" data-rdel="${i}" style="margin:0 8px 8px -4px">✕</button>`).join('')||'<div class="empty">Search a route and tap ☆ to save it.</div>';
+  $('#trHomeRoutes').innerHTML=R.length?R.map(chip).join(''):'<div class="empty">Search trains & buses between any two places.</div>';
+  $('#stnList').innerHTML=STN.map(s=>`<option value="${esc(s[1])} (${s[0]})">`).join('');
+  $('#rrStatus').textContent=rrKey()?'✓ Key saved':'No key';}
+$('#trForm').onsubmit=e=>{e.preventDefault();trSearch();};
+$('#trSwap').onclick=()=>{const a=$('#trFrom').value;$('#trFrom').value=$('#trTo').value;$('#trTo').value=a;};
+$('#trSave').onclick=()=>{const f=parseStn($('#trFrom').value),t=parseStn($('#trTo').value);if(!f.city||!t.city){toast('Enter From and To');return;}
+  const r={from:f.code||f.city,to:t.code||t.city};if(!S.routes.some(x=>x.from===r.from&&x.to===r.to)){S.routes.push(r);save();renderTravel();toast('Route saved ★');}};
+$('#rrSave').onclick=()=>{const v=$('#rrKey').value.trim();try{v?localStorage.setItem(RRK,v):localStorage.removeItem(RRK);}catch(e){}$('#rrKey').value='';renderTravel();toast(v?'Key saved':'Key removed');};
+$('#trDate').value=dkey();
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.route!=null){const r=S.routes[+d.route];go('plan','travel');$('#trFrom').value=STN.some(s=>s[0]===r.from)?stnLabel(r.from):r.from;$('#trTo').value=STN.some(s=>s[0]===r.to)?stnLabel(r.to):r.to;$('#trDate').value=$('#trDate').value||dkey();trSearch();return;}
+  if(d.rdel!=null){S.routes.splice(+d.rdel,1);save();renderTravel();return;}
+  if(d.ytgo){S.newsCat='yt';setTimeout(()=>{renderNews();loadYT();},0);return;}
+});
+
 /* ---------- boot ---------- */
-load();render();weather();loadNews();fitFetch();initSync();go(location.hash.slice(1)||'home');
+load();render();weather();loadNews();fitFetch();initSync();loadMarkets();setTimeout(()=>loadYT(),2500);setTimeout(()=>{let c=null;try{c=JSON.parse(localStorage.getItem(BK)||'null');}catch(e){}if(gemKey()&&!(c&&c.date===dkey()))aiBrief(false);},5000);go(location.hash.slice(1)||'home');
 setInterval(()=>{tick();renderSchedule();},30000);setInterval(weather,30*60000);setInterval(loadNews,20*60000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadNews();fitFetch();window.__sync&&window.__sync.pull();}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){hiQ=null;render();loadNews();fitFetch();loadMarkets();loadYT();window.__sync&&window.__sync.pull();}});
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|claudeusercontent/.test(location.hostname)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 })();
 </script>

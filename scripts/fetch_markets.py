@@ -24,18 +24,31 @@ def num(s):
 
 def gold():
     h = re.sub(r'\s+', ' ', get('https://www.goodreturns.in/gold-rates/chennai.html'))
+    R = r'(?:₹|&#8377;|&#x20b9;|Rs\.?)\s*([\d,]{4,7})'
+    def find(k):
+        for pat in (k + r'K Gold\s*/\s*g.{0,400}?' + R,
+                    k + r'\s*(?:K|Carat|Karat)[^₹]{0,250}?(?:1\s*)?gram[^₹]{0,120}?' + R):
+            m = re.search(pat, h, re.I)
+            if m:
+                v = num(m.group(1))
+                if 3000 < v < 60000: return v
+        return None
+    g24, g22 = find('24'), find('22')
+    if g24 and g22 and not (0.88 < g22 / g24 < 0.95):   # 22K should be ~91.6% of 24K
+        print(f'[warn] gold ratio off: 24K={g24} 22K={g22}', file=sys.stderr); return {}
     out = {}
-    for k in ('24', '22'):
-        m = re.search(k + r'\s*K[^₹]{0,120}?(?:₹|Rs\.?|&#8377;)\s*([\d,]{4,7})(?:\.\d+)?\b', h, re.I)
-        if m:
-            v = num(m.group(1))
-            out['g' + k] = v if v < 30000 else round(v / 10, 2)   # per gram
+    if g24: out['g24'] = g24
+    if g22: out['g22'] = g22
     return out
 
-def petrol():
-    h = re.sub(r'\s+', ' ', get('https://www.goodreturns.in/petrol-price-in-chennai.html'))
-    m = re.search(r'(?:₹|Rs\.?|&#8377;)\s*(1\d{2}\.\d{1,2})\s*(?:/|per)\s*(?:L|litre|Ltr)', h, re.I) or re.search(r'Chennai[^₹]{0,80}(?:₹|Rs\.?|&#8377;)\s*(1\d{2}\.\d{1,2})', h, re.I)
-    return round(num(m.group(1)), 2) if m else None
+def fuel(kind):
+    h = re.sub(r'\s+', ' ', get(f'https://www.goodreturns.in/{kind}-price-in-chennai.html'))
+    for pat in (r'Rs\.?\s*(\d{2,3}\.\d{1,2})\s*/\s*Ltr',
+                r'in Chennai stands at\s*(?:₹|Rs\.?|&#8377;)\s*(\d{2,3}\.\d{1,2})',
+                r'(?:₹|Rs\.?|&#8377;)\s*(\d{2,3}\.\d{1,2})\s*(?:/|per)\s*(?:L|litre|Ltr)'):
+        m = re.search(pat, h, re.I)
+        if m and 60 < float(m.group(1)) < 200: return round(float(m.group(1)), 2)
+    return None
 
 def main():
     try:
@@ -53,13 +66,16 @@ def main():
     try:
         g = gold()
         if g: chennai.update(g); chennai['gold_at'] = int(time.time()); ok += 1
-        else: print('[warn] gold: pattern not found', file=sys.stderr)
+        else:
+            print('[warn] gold: pattern not found', file=sys.stderr)
+            for k in ('g22', 'g24'): chennai.pop(k, None)
     except Exception as e: print(f'[warn] gold: {e}', file=sys.stderr)
-    try:
-        p = petrol()
-        if p: chennai['petrol'] = p; chennai['petrol_at'] = int(time.time()); ok += 1
-        else: print('[warn] petrol: pattern not found', file=sys.stderr)
-    except Exception as e: print(f'[warn] petrol: {e}', file=sys.stderr)
+    for kind in ('petrol', 'diesel'):
+        try:
+            v = fuel(kind)
+            if v: chennai[kind] = v; chennai[kind + '_at'] = int(time.time()); ok += 1
+            else: print(f'[warn] {kind}: pattern not found', file=sys.stderr)
+        except Exception as e: print(f'[warn] {kind}: {e}', file=sys.stderr)
     if not ok: print('nothing fetched; keeping old file', file=sys.stderr); return
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, 'w') as f:
