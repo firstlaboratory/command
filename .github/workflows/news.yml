@@ -1,7 +1,8 @@
-name: Refresh news
+name: Refresh news & markets
 on:
   schedule:
     - cron: '17 */3 * * *'   # every 3 hours
+    - cron: '47 3-10 * * 1-5'  # hourly during Indian market hours (UTC)
   workflow_dispatch:
 permissions:
   contents: write
@@ -12,9 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 scripts/fetch_news.py
+      - run: python3 scripts/fetch_markets.py || true
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/news.json
-          git diff --cached --quiet || (git commit -m "Refresh news" && git push)
+          git add data/news.json data/markets.json || true
+          git diff --cached --quiet || (git commit -m "Refresh news & markets" && git push)
