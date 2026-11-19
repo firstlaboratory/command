@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b0f14">
+<script>(function(){var t='auto';try{t=localStorage.getItem('cmdcentre.theme')||'auto'}catch(e){}
+var d=t==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):t;document.documentElement.dataset.theme=d;})();</script>
 <title>Command Centre</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -15,7 +17,7 @@
 :root{
   --bg:#0b0f14; --panel:#121821; --panel2:#18202b; --line:#233041;
   --text:#e6edf3; --dim:#8b98a8; --accent:#3ddc97; --accent2:#4cc3ff;
-  --warn:#ffb547; --bad:#ff6b6b; --r:14px;
+  --warn:#ffb547; --bad:#ff6b6b; --r:14px; --navbg:rgba(11,15,20,.95); --onacc:#06281a; color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:15px}
@@ -36,7 +38,7 @@ header .sub{color:var(--dim);font-size:13px;margin-top:2px}
 .big{font-size:30px;font-weight:700}
 .muted{color:var(--dim);font-size:13px}
 button,.btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer}
-button.primary{background:var(--accent);color:#06281a;border-color:var(--accent);font-weight:600}
+button.primary{background:var(--accent);color:var(--onacc);border-color:var(--accent);font-weight:600}
 button.ghost{background:none;border:none;color:var(--accent2);padding:2px 4px}
 button.danger{color:var(--bad)}
 input,select,textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:15px}
@@ -50,7 +52,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .list .grow{flex:1;min-width:0}
 .list .title{overflow-wrap:anywhere}
 .chk{width:22px;height:22px;border-radius:7px;border:2px solid var(--dim);flex:0 0 22px;display:grid;place-items:center;cursor:pointer;background:none;padding:0}
-.chk.on{background:var(--accent);border-color:var(--accent);color:#06281a}
+.chk.on{background:var(--accent);border-color:var(--accent);color:var(--onacc)}
 .done .title{text-decoration:line-through;color:var(--dim)}
 .tag{font-size:10px;padding:2px 7px;border-radius:20px;border:1px solid var(--line);color:var(--dim);text-transform:uppercase;letter-spacing:1px}
 .tag.Idea{color:var(--accent2);border-color:#24506a}
@@ -71,7 +73,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .week span{width:14px;height:14px;border-radius:4px;background:var(--bg);border:1px solid var(--line)}
 .week span.on{background:var(--accent);border-color:var(--accent)}
 .streak{font-size:13px;color:var(--warn);font-weight:600}
-nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,15,20,.95);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:10}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--navbg);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:10}
 nav button{background:none;border:none;color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;padding:6px 10px;flex:1}
 nav button svg{width:22px;height:22px}
 nav button.on{color:var(--accent)}
@@ -112,7 +114,7 @@ nav button.on{color:var(--accent)}
 .trend{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:6px 11px;margin:0 6px 8px 0;color:var(--text);text-decoration:none;font-size:13px}
 .trend small{color:var(--warn);font-family:"JetBrains Mono",monospace;font-size:11px}
 .book{display:flex;gap:12px;align-items:center}
-.spine{width:42px;height:58px;border-radius:5px;flex:0 0 42px;display:grid;place-items:center;font-weight:700;font-size:18px;color:#06281a}
+.spine{width:42px;height:58px;border-radius:5px;flex:0 0 42px;display:grid;place-items:center;font-weight:700;font-size:18px;color:var(--onacc)}
 .notice{background:var(--panel2);border:1px dashed var(--line);border-radius:10px;padding:12px;color:var(--dim);font-size:13px}
 .daypick{display:flex;gap:4px;flex-wrap:wrap}
 .daypick label{margin:0!important;display:flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;color:var(--text)!important;font-size:13px!important}
@@ -127,6 +129,16 @@ nav button.on{color:var(--accent)}
 .loadbars span{font-size:10px;color:var(--dim);margin-top:3px}
 .well{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--dim);margin:6px 0}
 .well b{color:var(--text);font-family:"JetBrains Mono",monospace}
+html[data-theme=light]{--bg:#f3f5f8;--panel:#ffffff;--panel2:#eef2f6;--line:#dce3eb;--text:#16212c;--dim:#5d6a79;--accent:#12a165;--accent2:#1a7fc9;--warn:#b86e00;--bad:#d23434;--navbg:rgba(255,255,255,.95);--onacc:#fff;color-scheme:light}
+html[data-theme=light] .card{box-shadow:0 1px 3px rgba(20,30,45,.06)}
+html[data-theme=light] .dot{box-shadow:none}
+html[data-theme=light] .tag.Idea{border-color:#b7d7ef} html[data-theme=light] .tag.Reminder{border-color:#efd5a8}
+.themeseg{margin:0}
+.tk-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.tk-cat{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px}
+.tk-cat .nm{width:96px;flex:0 0 96px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-cat .bar{flex:1;margin:0}
+.tk-cat .amt{width:72px;text-align:right;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -158,6 +170,7 @@ nav button.on{color:var(--accent)}
   </div>
   <div style="height:12px"></div>
   <div class="card"><h2>Up next <button class="ghost" data-go="plan">Schedule →</button></h2><ul class="list tl" id="upNext"></ul></div>
+  <div class="card"><h2><span>💸 Trickle · <span id="tkMonth"></span></span> <a class="ghost" style="color:var(--accent2);text-decoration:none;font-size:11px;text-transform:none;letter-spacing:0" href="https://firstlaboratory.github.io/expenses/" target="_blank" rel="noopener">Open →</a></h2><div id="tkBody"></div></div>
   <div class="card"><h2>Training <span><button class="ghost" id="fitRefresh">↻</button> <button class="ghost" id="fitAll">All →</button></span></h2><div id="fitBody"></div></div>
   <div class="card"><h2>Headlines <button class="ghost" data-go="news">All news →</button></h2><ul class="list news" id="homeNews"></ul>
     <div id="homeTrends" style="margin-top:10px"></div></div>
@@ -228,6 +241,10 @@ nav button.on{color:var(--accent)}
     <div class="row" style="margin-top:10px"><button class="primary" id="fitSave">Save &amp; test</button><button class="danger" id="fitOff">Disconnect</button></div>
     <div class="muted" id="fitStatus" style="margin-top:8px"></div>
   </div>
+  <div class="card"><h2>Appearance</h2>
+    <div class="seg themeseg" id="themeSeg"><button data-theme-set="auto">Auto</button><button data-theme-set="light">☀️ Light</button><button data-theme-set="dark">🌙 Dark</button></div>
+    <div class="muted" style="font-size:12px">Auto follows your phone's light/dark setting.</div>
+  </div>
   <div class="card"><h2>Profile</h2>
     <label class="muted">Your name</label><input id="setName" placeholder="Guru">
     <label class="muted" style="display:block;margin-top:10px">Weather city</label>
@@ -240,7 +257,7 @@ nav button.on{color:var(--accent)}
     <div class="row" style="margin-top:8px"><label class="btn" style="text-align:center">Restore from file<input type="file" id="importFile" accept=".json,application/json" hidden></label><button id="pasteBtn">Paste backup</button></div>
   </div>
   <div class="card"><h2>Danger zone</h2><button class="danger" id="resetBtn">Reset everything</button></div>
-  <p class="muted" style="text-align:center">Command Centre v4 · firstlaboratory</p>
+  <p class="muted" style="text-align:center">Command Centre v5 · firstlaboratory</p>
 </section>
 </div>
 
@@ -477,7 +494,7 @@ function render(){
     return `<li><div class="grow"><div class="row" style="justify-content:space-between"><div class="title">${esc(g.name)}</div><div class="mono muted shrink">${fmt(g.current)} / ${fmt(g.target)} ${esc(g.unit||'')}</div></div><div class="bar"><i style="width:${p}%"></i></div>
     <div class="row" style="margin-top:8px;justify-content:flex-start"><button class="shrink" data-goal-step="${g.id}" data-d="-1">−1</button><button class="shrink" data-goal-step="${g.id}" data-d="1">+1</button><button class="shrink" data-goal-set="${g.id}">Update</button><span></span><button class="ghost danger shrink" data-del-goal="${g.id}">remove</button></div></div></li>`}).join('')||'<li class="empty">No goals yet — e.g. "Run 50 km before the trek"</li>';
   $('#setName').value=S.name||'';$('#setCity').value=S.city?.name||'';
-  renderSchedule();renderReading();renderNews();renderHomeNews();renderFit();
+  renderSchedule();renderReading();renderNews();renderHomeNews();renderFit();renderTrickle();
 }
 
 /* ---------- sheet ---------- */
@@ -613,6 +630,34 @@ $('#pasteBtn').onclick=()=>sheet(`<h3>Paste backup</h3><textarea name="b" rows="
 $('#importFile').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(restore);e.target.value='';};
 $('#resetBtn').onclick=()=>confirmSheet('This wipes all your data on this device.',()=>{S=structuredClone(SEED);});
 
+
+
+/* ---------- theme ---------- */
+const THK='cmdcentre.theme';const mq=matchMedia('(prefers-color-scheme: light)');
+function applyTheme(){let t='auto';try{t=localStorage.getItem(THK)||'auto';}catch(e){}
+  const d=t==='auto'?(mq.matches?'light':'dark'):t;document.documentElement.dataset.theme=d;
+  document.querySelector('meta[name=theme-color]').content=d==='light'?'#f3f5f8':'#0b0f14';
+  document.querySelectorAll('#themeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.themeSet===t));}
+mq.addEventListener?.('change',applyTheme);
+$('#themeSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;try{localStorage.setItem(THK,b.dataset.themeSet);}catch(x){}applyTheme();};
+applyTheme();
+
+/* ---------- Trickle (reads summary Trickle saves on this device) ---------- */
+const inr=new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0});
+function renderTrickle(){const box=$('#tkBody');if(!box)return;const now=new Date(),mkey=now.getFullYear()+'-'+pad(now.getMonth()+1);
+  $('#tkMonth').textContent=now.toLocaleDateString('en-IN',{month:'long'});
+  const T=lsGet('trickle_summary');
+  if(!T){box.innerHTML='<div class="empty">Open Trickle once on this device and this month\'s spending will appear here.</div>';return;}
+  if(T.month!==mkey){box.innerHTML=`<div class="empty">Open Trickle to update for ${now.toLocaleDateString('en-IN',{month:'long'})}.</div>`;return;}
+  const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),day=now.getDate(),p=T.budget?T.spent/T.budget:0;
+  const paceOk=!T.budget||p<=day/dim+0.05;
+  const max=Math.max(1,...(T.top||[]).map(c=>c.amount));
+  box.innerHTML=`<div class="tk-top"><div><div class="big mono">${inr.format(T.spent)}</div><div class="muted">spent${T.budget?` of ${inr.format(T.budget)}`:''}</div></div>
+    <div style="text-align:right" class="muted">${T.income?`<div>💼 ${inr.format(T.income)} in</div>`:''}${T.invested?`<div style="color:var(--accent)">📈 ${inr.format(T.invested)} invested</div>`:''}</div></div>
+    ${T.budget?`<div class="bar" style="margin-top:8px"><i style="width:${Math.min(100,p*100)}%;background:${p>1?'var(--bad)':paceOk?'':'var(--warn)'}"></i></div>
+      <div class="muted" style="font-size:12px;margin-top:4px">${p>1?'⚠️ Over budget':paceOk?'✓ On track':'⚠️ Ahead of pace'} · day ${day} of ${dim} · ${inr.format(Math.max(0,T.budget-T.spent))} left</div>`:''}
+    ${(T.top||[]).map(c=>`<div class="tk-cat"><span class="nm">${esc(c.icon||'')} ${esc(c.name)}</span><div class="bar"><i style="width:${c.amount/max*100}%;background:${esc(c.color||'var(--accent)')}"></i></div><span class="amt">${inr.format(c.amount)}</span></div>`).join('')}
+    <div class="muted" style="font-size:12px;margin-top:10px">${T.prev?`Last month ${inr.format(T.prev)} · `:''}${T.count} expense${T.count===1?'':'s'} · updated ${ago(T.at/1000)}</div>`;}
 
 /* ---------- Google Drive sync (appDataFolder) ---------- */
 const CLIENT_ID_DEFAULT='297566847990-1112ps2i81fkjrpqntegoqtafun390gt.apps.googleusercontent.com';
