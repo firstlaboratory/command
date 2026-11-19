@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f14">
+<title>Command Centre</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0f14; --panel:#121821; --panel2:#18202b; --line:#233041;
+  --text:#e6edf3; --dim:#8b98a8; --accent:#3ddc97; --accent2:#4cc3ff;
+  --warn:#ffb547; --bad:#ff6b6b; --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:15px}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(76px + env(safe-area-inset-bottom)) env(safe-area-inset-left)}
+.wrap{max-width:720px;margin:0 auto;padding:16px}
+.mono{font-family:"JetBrains Mono",monospace}
+header{display:flex;justify-content:space-between;align-items:flex-end;margin:6px 0 16px}
+header h1{margin:0;font-size:22px;font-weight:700}
+header .sub{color:var(--dim);font-size:13px;margin-top:2px}
+.clock{font-size:26px;font-weight:600;color:var(--accent);letter-spacing:1px}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.card h2{margin:0 0 10px;font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:1.6px;display:flex;justify-content:space-between;align-items:center}
+.card h2 button{font-size:11px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid2 .card{margin:0}
+.big{font-size:30px;font-weight:700}
+.muted{color:var(--dim);font-size:13px}
+button,.btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer}
+button.primary{background:var(--accent);color:#06281a;border-color:var(--accent);font-weight:600}
+button.ghost{background:none;border:none;color:var(--accent2);padding:2px 4px}
+button.danger{color:var(--bad)}
+input,select,textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:15px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.row{display:flex;gap:8px;align-items:center}
+.row > *{flex:1}
+.row > .shrink{flex:0 0 auto}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.list li:first-child{border-top:none}
+.list .grow{flex:1;min-width:0}
+.list .title{overflow-wrap:anywhere}
+.chk{width:22px;height:22px;border-radius:7px;border:2px solid var(--dim);flex:0 0 22px;display:grid;place-items:center;cursor:pointer;background:none;padding:0}
+.chk.on{background:var(--accent);border-color:var(--accent);color:#06281a}
+.done .title{text-decoration:line-through;color:var(--dim)}
+.tag{font-size:10px;padding:2px 7px;border-radius:20px;border:1px solid var(--line);color:var(--dim);text-transform:uppercase;letter-spacing:1px}
+.tag.Idea{color:var(--accent2);border-color:#24506a}
+.tag.Reminder{color:var(--warn);border-color:#5a4520}
+.due{font-size:12px;color:var(--dim)}
+.due.over{color:var(--bad)} .due.soon{color:var(--warn)}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.app{position:relative;background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);padding:14px 8px;text-align:center;text-decoration:none;color:var(--text);display:block}
+.app .ic{font-size:30px;line-height:1}
+.app .nm{font-size:13px;margin-top:8px;font-weight:500}
+.app .x{position:absolute;top:4px;right:4px;background:var(--bad);color:#fff;border:none;border-radius:50%;width:22px;height:22px;padding:0;font-size:13px;line-height:22px}
+.cd{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.cd:first-of-type{border-top:none}
+.cd .n{font-size:22px;font-weight:600;color:var(--accent2)}
+.bar{height:8px;background:var(--bg);border-radius:8px;overflow:hidden;margin-top:6px}
+.bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.week{display:flex;gap:4px;margin-top:6px}
+.week span{width:14px;height:14px;border-radius:4px;background:var(--bg);border:1px solid var(--line)}
+.week span.on{background:var(--accent);border-color:var(--accent)}
+.streak{font-size:13px;color:var(--warn);font-weight:600}
+nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,15,20,.95);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:10}
+nav button{background:none;border:none;color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;padding:6px 10px;flex:1}
+nav button svg{width:22px;height:22px}
+nav button.on{color:var(--accent)}
+.view{display:none}.view.on{display:block}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:20;align-items:flex-end;justify-content:center}
+.sheet-bg.on{display:flex}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:720px;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:85vh;overflow:auto}
+.sheet h3{margin:0 0 12px}
+.sheet label{display:block;font-size:12px;color:var(--dim);margin:10px 0 4px}
+.sheet .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+.toast.on{opacity:1}
+.empty{color:var(--dim);font-size:13px;padding:6px 0}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chips button{font-size:12px;padding:5px 10px;border-radius:20px}
+.chips button.on{border-color:var(--accent);color:var(--accent)}
+.wx{display:flex;align-items:center;gap:12px}
+.wx .ic{font-size:36px}
+.seg{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;border:none;background:none;color:var(--dim);border-radius:9px;padding:8px}
+.seg button.on{background:var(--panel2);color:var(--text);font-weight:600}
+.days{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.days button{flex:0 0 auto;min-width:48px;display:flex;flex-direction:column;align-items:center;padding:6px 8px;gap:2px}
+.days button b{font-size:17px}
+.days button small{font-size:10px;color:var(--dim);text-transform:uppercase}
+.days button.on{border-color:var(--accent);color:var(--accent)}
+.tl li{align-items:flex-start}
+.tl .time{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--dim);width:52px;flex:0 0 52px;padding-top:2px}
+.tl li.past .title{color:var(--dim)}
+.tl li.now{background:linear-gradient(90deg,rgba(61,220,151,.12),transparent);border-radius:10px;padding-left:6px}
+.tl li.now .time{color:var(--accent)}
+.rep{font-size:11px;color:var(--dim)}
+.news li{align-items:flex-start}
+.news .title{font-size:15px;line-height:1.35;color:var(--text);text-decoration:none;display:block}
+.news .meta{font-size:12px;color:var(--dim);margin-top:4px}
+.news .save{font-size:18px;padding:2px 6px}
+.trend{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:6px 11px;margin:0 6px 8px 0;color:var(--text);text-decoration:none;font-size:13px}
+.trend small{color:var(--warn);font-family:"JetBrains Mono",monospace;font-size:11px}
+.book{display:flex;gap:12px;align-items:center}
+.spine{width:42px;height:58px;border-radius:5px;flex:0 0 42px;display:grid;place-items:center;font-weight:700;font-size:18px;color:#06281a}
+.notice{background:var(--panel2);border:1px dashed var(--line);border-radius:10px;padding:12px;color:var(--dim);font-size:13px}
+.daypick{display:flex;gap:4px;flex-wrap:wrap}
+.daypick label{margin:0!important;display:flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;color:var(--text)!important;font-size:13px!important}
+.daypick input{width:auto}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
+.stat b{display:block;font-family:"JetBrains Mono",monospace;font-size:20px}
+.stat small{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px}
+.loadbars{display:flex;align-items:flex-end;gap:6px;height:64px;margin:6px 0 2px}
+.loadbars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.loadbars i{display:block;width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--accent2),var(--accent));min-height:2px}
+.loadbars span{font-size:10px;color:var(--dim);margin-top:3px}
+.well{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--dim);margin:6px 0}
+.well b{color:var(--text);font-family:"JetBrains Mono",monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <div class="status"><span class="dot"></span><span id="syncState">All systems go</span></div>
+    <h1 id="greet">Good evening</h1>
+    <div class="sub" id="dateLine"></div>
+  </div>
+  <div class="clock mono" id="clock">--:--</div>
+</header>
+
+<!-- HOME -->
+<section class="view on" id="v-home">
+  <div class="card">
+    <form id="quickForm" class="row">
+      <input id="quickIn" placeholder="Quick capture — task, idea:, remind:…" autocomplete="off">
+      <button class="primary shrink" type="submit">Add</button>
+    </form>
+  </div>
+  <div class="grid2">
+    <div class="card"><h2>Weather</h2><div id="wx" class="muted">Loading…</div></div>
+    <div class="card"><h2>Today</h2>
+      <div class="big mono" id="todayStat">0/0</div>
+      <div class="muted">habits done</div>
+      <div class="muted" id="taskStat" style="margin-top:6px"></div>
+    </div>
+  </div>
+  <div style="height:12px"></div>
+  <div class="card"><h2>Up next <button class="ghost" data-go="plan">Schedule →</button></h2><ul class="list tl" id="upNext"></ul></div>
+  <div class="card"><h2>Training <span><button class="ghost" id="fitRefresh">↻</button> <button class="ghost" id="fitAll">All →</button></span></h2><div id="fitBody"></div></div>
+  <div class="card"><h2>Headlines <button class="ghost" data-go="news">All news →</button></h2><ul class="list news" id="homeNews"></ul>
+    <div id="homeTrends" style="margin-top:10px"></div></div>
+  <div class="card" id="homeReading"><h2>Currently reading <button class="ghost" data-go="read">Library →</button></h2><div id="readingNow"></div></div>
+  <div class="card"><h2>Countdowns <button class="ghost" data-act="addCountdown">+ Add</button></h2><div id="cdList"></div></div>
+  <div class="card"><h2>Due soon <button class="ghost" data-go="plan" data-sub="tasks">All tasks →</button></h2><ul class="list" id="dueList"></ul></div>
+  <div class="card"><h2>Today's habits <button class="ghost" data-go="more">Manage →</button></h2><ul class="list" id="habitToday"></ul></div>
+  <div class="card"><h2>Launch <button class="ghost" data-go="more">Edit →</button></h2><div class="apps" id="appsMini"></div></div>
+</section>
+
+<!-- NEWS -->
+<section class="view" id="v-news">
+  <div class="chips" id="newsCats"></div>
+  <div class="card"><h2><span id="newsTitle">Headlines</span> <span class="muted" style="text-transform:none;letter-spacing:0" id="newsUpdated"></span></h2>
+    <div id="newsBody"></div></div>
+</section>
+
+<!-- PLAN -->
+<section class="view" id="v-plan">
+  <div class="seg" id="planSeg"><button data-sub="schedule" class="on">Schedule</button><button data-sub="tasks">Tasks</button></div>
+  <div id="p-schedule">
+    <div class="days" id="dayStrip"></div>
+    <div class="card"><h2><span id="dayTitle">Today</span> <button class="ghost" data-act="addBlock">+ Add</button></h2><ul class="list tl" id="dayList"></ul></div>
+    <div class="card"><h2>Due this day</h2><ul class="list" id="dayTasks"></ul></div>
+  </div>
+  <div id="p-tasks" style="display:none">
+    <div class="card"><h2>Inbox <button class="ghost" data-act="addTask">+ New</button></h2>
+      <div class="chips" id="taskFilter">
+        <button data-f="open" class="on">Open</button><button data-f="Task">Tasks</button><button data-f="Idea">Ideas</button><button data-f="Reminder">Reminders</button><button data-f="done">Done</button>
+      </div>
+      <ul class="list" id="taskList"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- READ -->
+<section class="view" id="v-read">
+  <div class="card"><h2>This year <button class="ghost" id="setTarget">Set target</button></h2>
+    <div class="row"><div><span class="big mono" id="booksDone">0</span><span class="muted"> / <span id="booksTarget">12</span> books</span></div></div>
+    <div class="bar"><i id="booksBar" style="width:0"></i></div>
+  </div>
+  <div class="seg" id="readSeg"><button data-sub="books" class="on">Books</button><button data-sub="articles">Saved articles</button></div>
+  <div id="r-books">
+    <div class="chips" id="shelf"><button data-s="reading" class="on">Reading</button><button data-s="want">Want to read</button><button data-s="done">Finished</button></div>
+    <div class="card"><h2><span id="shelfTitle">Reading</span> <button class="ghost" data-act="addBook">+ Add book</button></h2><ul class="list" id="bookList"></ul></div>
+  </div>
+  <div id="r-articles" style="display:none">
+    <div class="card"><h2>Read later <button class="ghost" data-act="addArticle">+ Add link</button></h2><ul class="list news" id="articleList"></ul></div>
+  </div>
+</section>
+
+<!-- MORE -->
+<section class="view" id="v-more">
+  <div class="card"><h2>Habits <button class="ghost" data-act="addHabit">+ Add</button></h2><ul class="list" id="habitList"></ul></div>
+  <div class="card"><h2>Goals <button class="ghost" data-act="addGoal">+ Add</button></h2><ul class="list" id="goalList"></ul></div>
+  <div class="card"><h2>My apps <span><button class="ghost" id="editApps">Edit</button> <button class="ghost" data-act="addApp">+ Add</button></span></h2><div class="apps" id="appsAll"></div></div>
+  <div class="card"><h2>Garmin via intervals.icu</h2>
+    <p class="muted" style="margin-top:0">In intervals.icu: Settings → Connections → link Garmin. Then Settings → Developer Settings → copy your API key. The key stays on this phone only (not in backups).</p>
+    <label class="muted">Athlete ID (leave 0 for yourself)</label><input id="fitAth" placeholder="0">
+    <label class="muted" style="display:block;margin-top:10px">API key</label><input id="fitKey" type="password" autocomplete="off" placeholder="Paste API key">
+    <div class="row" style="margin-top:10px"><button class="primary" id="fitSave">Save &amp; test</button><button class="danger" id="fitOff">Disconnect</button></div>
+    <div class="muted" id="fitStatus" style="margin-top:8px"></div>
+  </div>
+  <div class="card"><h2>Profile</h2>
+    <label class="muted">Your name</label><input id="setName" placeholder="Guru">
+    <label class="muted" style="display:block;margin-top:10px">Weather city</label>
+    <div class="row"><input id="setCity" placeholder="Chennai"><button class="shrink" id="useLoc">📍 Here</button></div>
+    <div class="row" style="margin-top:10px"><button class="primary" id="saveProfile">Save</button></div>
+  </div>
+  <div class="card"><h2>Backup</h2>
+    <p class="muted" style="margin-top:0">Your data is stored on this device only. Back it up now and then.</p>
+    <div class="row"><button id="exportBtn">Download backup</button><button id="copyBtn">Copy backup</button></div>
+    <div class="row" style="margin-top:8px"><label class="btn" style="text-align:center">Restore from file<input type="file" id="importFile" accept=".json,application/json" hidden></label><button id="pasteBtn">Paste backup</button></div>
+  </div>
+  <div class="card"><h2>Danger zone</h2><button class="danger" id="resetBtn">Reset everything</button></div>
+  <p class="muted" style="text-align:center">Command Centre v3 · firstlaboratory</p>
+</section>
+</div>
+
+<nav id="nav">
+  <button data-go="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button data-go="news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>News</button>
+  <button data-go="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Plan</button>
+  <button data-go="read"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M19 19v2H6"/></svg>Read</button>
+  <button data-go="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>More</button>
+</nav>
+
+<div class="sheet-bg" id="sheetBg"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+const KEY='cmdcentre.v1';
+const pad=n=>String(n).padStart(2,'0');
+const dkey=(d=new Date())=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.querySelector(s);
+const fmt=n=>Number(n).toLocaleString('en-IN');
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+const SEED={
+  name:'Guru', city:{name:'Chennai',lat:13.0827,lon:80.2707},
+  apps:[
+    {id:'a1',name:'Trickle',emoji:'💸',url:'https://firstlaboratory.github.io/expenses/'},
+    {id:'a2',name:'Mozhi',emoji:'🗣️',url:'https://firstlaboratory.github.io/mozhi/'},
+    {id:'a3',name:'Saaram',emoji:'📚',url:'https://firstlaboratory.github.io/saaram/'},
+    {id:'a4',name:'Neethi',emoji:'⚖️',url:'https://firstlaboratory.github.io/neethi/'},
+    {id:'a5',name:'Daam',emoji:'🏷️',url:'https://firstlaboratory.github.io/daam/'},
+    {id:'a6',name:'Home site',emoji:'🏠',url:'https://firstlaboratory.github.io/'}
+  ],
+  tasks:[{id:'t1',text:'Set up my schedule, habits & books',tag:'Task',due:dkey(),done:false,created:Date.now()}],
+  countdowns:[{id:'c1',name:'Kerala trip',date:'2026-12-27',emoji:'🌴'}],
+  habits:[
+    {id:'h1',name:'Learn 5 Hindi words',emoji:'🔤',log:{}},
+    {id:'h2',name:'Workout',emoji:'💪',log:{}},
+    {id:'h3',name:'Read 20 minutes',emoji:'📖',log:{}}
+  ],
+  goals:[],
+  schedule:[
+    {id:'s1',title:'Hindi words',emoji:'🔤',start:'20:17',end:'',repeat:'daily',days:[],date:''},
+    {id:'s2',title:'Reading time',emoji:'📖',start:'21:30',end:'22:00',repeat:'daily',days:[],date:''}
+  ],
+  books:[], articles:[], readTarget:{}, newsCat:'india'
+};
+
+let S;
+function fill(){for(const k of Object.keys(SEED)) if(S[k]===undefined) S[k]=structuredClone(SEED[k]);}
+function load(){try{const raw=localStorage.getItem(KEY);S=raw?JSON.parse(raw):structuredClone(SEED);}catch(e){S=structuredClone(SEED);}fill();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));$('#syncState').textContent='Saved on device';}catch(e){$('#syncState').textContent='Not saving (storage blocked)';}}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1800);}
+
+/* ---------- header ---------- */
+function tick(){const d=new Date();$('#clock').textContent=pad(d.getHours())+':'+pad(d.getMinutes());
+  const h=d.getHours();const g=h<5?'Burning the midnight oil':h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  $('#greet').textContent=g+(S.name?', '+S.name:'');
+  $('#dateLine').textContent=d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+
+/* ---------- weather ---------- */
+const WMO={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],45:['🌫️','Fog'],48:['🌫️','Fog'],51:['🌦️','Drizzle'],53:['🌦️','Drizzle'],55:['🌦️','Drizzle'],61:['🌧️','Rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],80:['🌦️','Showers'],81:['🌧️','Showers'],82:['⛈️','Heavy showers'],95:['⛈️','Thunderstorm'],96:['⛈️','Thunderstorm'],99:['⛈️','Thunderstorm']};
+async function weather(){const c=S.city,box=$('#wx');
+  try{const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1`);
+    const j=await r.json(),cur=j.current,dy=j.daily,w=WMO[cur.weather_code]||['🌡️',''];
+    box.innerHTML=`<div class="wx"><div class="ic">${w[0]}</div><div class="big mono">${Math.round(cur.temperature_2m)}°</div></div>
+      <div class="muted">${esc(c.name)} · ${w[1]}</div><div class="muted">H ${Math.round(dy.temperature_2m_max[0])}° L ${Math.round(dy.temperature_2m_min[0])}° · ☔ ${dy.precipitation_probability_max[0]??0}%</div>`;
+  }catch(e){box.innerHTML=`<div class="muted">${esc(c.name)}<br>Weather unavailable right now</div>`;}}
+
+/* ---------- news ---------- */
+let NEWS=null,newsErr=false;
+async function loadNews(){try{const r=await fetch('data/news.json?'+Math.floor(Date.now()/6e5),{cache:'no-cache'});if(!r.ok)throw 0;NEWS=await r.json();newsErr=false;}catch(e){newsErr=!NEWS;}renderNews();renderHomeNews();}
+function ago(t){if(!t)return '';const m=Math.round((Date.now()/1000-t)/60);if(m<60)return m+'m ago';const h=Math.round(m/60);if(h<24)return h+'h ago';return Math.round(h/24)+'d ago';}
+const NEWS_WAIT='<div class="notice">News appears once the app is live on GitHub Pages. It refreshes automatically every 3 hours.</div>';
+function newsItem(n,saveable=true){const saved=S.articles.some(a=>a.u===n.u);
+  return `<li><div class="grow"><a class="title" href="${esc(n.u)}" target="_blank" rel="noopener">${esc(n.t)}</a><div class="meta">${esc(n.s||'')}${n.p?' · '+ago(n.p):''}</div></div>
+  ${saveable?`<button class="ghost save shrink" data-save-news="${esc(n.u)}" title="Save for later">${saved?'🔖':'＋'}</button>`:''}</li>`;}
+function trendChips(list,n){return list.slice(0,n).map(t=>`<a class="trend" href="https://www.google.com/search?q=${encodeURIComponent(t.q)}" target="_blank" rel="noopener">${esc(t.q)}${t.traffic?` <small>${esc(t.traffic)}</small>`:''}</a>`).join('');}
+function renderNews(){
+  const cats=(NEWS?.categories||[]).concat(NEWS?.trends?.length?[{id:'trends',name:'🔥 Trending'}]:[]);
+  if(!cats.find(c=>c.id===S.newsCat)&&cats.length)S.newsCat=cats[0].id;
+  $('#newsCats').innerHTML=cats.map(c=>`<button data-cat="${c.id}" class="${c.id===S.newsCat?'on':''}">${esc(c.name)}</button>`).join('');
+  $('#newsUpdated').textContent=NEWS?.updated?'updated '+ago(NEWS.updated):'';
+  if(!NEWS){$('#newsTitle').textContent='Headlines';$('#newsBody').innerHTML=newsErr?NEWS_WAIT:'<div class="muted">Loading…</div>';return;}
+  if(S.newsCat==='trends'){$('#newsTitle').textContent='Trending in India';
+    $('#newsBody').innerHTML='<p class="muted" style="margin-top:0">What India is searching right now (Google Trends)</p><ul class="list news">'+NEWS.trends.map(t=>`<li><div class="grow"><a class="title" href="https://www.google.com/search?q=${encodeURIComponent(t.q)}" target="_blank" rel="noopener">${esc(t.q)}</a>
+      <div class="meta">${t.traffic?esc(t.traffic)+' searches':''}${t.p?' · '+ago(t.p):''}</div>${(t.news||[]).map(n=>`<div class="meta">↳ <a href="${esc(n.u)}" target="_blank" rel="noopener" style="color:var(--accent2)">${esc(n.t)}</a> <span>${esc(n.s)}</span></div>`).join('')}</div></li>`).join('')+'</ul>';return;}
+  const c=NEWS.categories.find(x=>x.id===S.newsCat);$('#newsTitle').textContent=c?c.name:'';
+  $('#newsBody').innerHTML=c&&c.items.length?'<ul class="list news">'+c.items.map(n=>newsItem(n)).join('')+'</ul>':'<div class="empty">No headlines</div>';}
+function renderHomeNews(){
+  if(!NEWS){$('#homeNews').innerHTML=`<li>${newsErr?NEWS_WAIT:'<span class="muted">Loading…</span>'}</li>`;$('#homeTrends').innerHTML='';return;}
+  const c=NEWS.categories[0];$('#homeNews').innerHTML=(c?.items||[]).slice(0,3).map(n=>newsItem(n)).join('');
+  $('#homeTrends').innerHTML=NEWS.trends?.length?'<div class="muted" style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px">🔥 Trending in India</div>'+trendChips(NEWS.trends,8):'';}
+
+/* ---------- schedule ---------- */
+function occurs(b,d){const dow=d.getDay();
+  if(b.repeat==='daily')return true; if(b.repeat==='weekdays')return dow>0&&dow<6;
+  if(b.repeat==='weekly')return (b.days||[]).includes(dow); return b.date===dkey(d);}
+function blocksFor(d){return S.schedule.filter(b=>occurs(b,d)).sort((a,b)=>a.start.localeCompare(b.start));}
+const nowHM=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes());};
+function repLabel(b){return b.repeat==='daily'?'Daily':b.repeat==='weekdays'?'Weekdays':b.repeat==='weekly'?(b.days||[]).sort().map(i=>DOW[i]).join(' '):'';}
+function blockRow(b,isToday){const n=nowHM();const end=b.end||b.start;
+  const st=!isToday?'':(n>=b.start&&n<=(b.end||b.start)&&b.end)||(!b.end&&n.slice(0,4)===b.start.slice(0,4))?'now':n>end?'past':'';
+  return `<li class="${st}"><div class="time">${b.start}${b.end?`<br><span style="font-size:11px">${b.end}</span>`:''}</div>
+   <div class="grow"><div class="title">${esc(b.emoji||'')} ${esc(b.title)}</div><div class="rep">${repLabel(b)}${st==='now'?' · <span style="color:var(--accent)">Now</span>':''}</div></div>
+   <button class="ghost shrink" data-edit-block="${b.id}">✎</button></li>`;}
+let selDay=dkey();
+function renderSchedule(){
+  let strip='';for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()+i);const k=dkey(d);
+    strip+=`<button data-day="${k}" class="${k===selDay?'on':''}"><small>${i===0?'Today':DOW[d.getDay()]}</small><b>${d.getDate()}</b></button>`;}
+  $('#dayStrip').innerHTML=strip;
+  const d=new Date(selDay+'T00:00:00'),isToday=selDay===dkey();
+  $('#dayTitle').textContent=isToday?'Today':d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'});
+  $('#dayList').innerHTML=blocksFor(d).map(b=>blockRow(b,isToday)).join('')||'<li class="empty">Nothing scheduled. Tap + Add.</li>';
+  $('#dayTasks').innerHTML=S.tasks.filter(t=>!t.done&&t.due===selDay).map(taskRow).join('')||'<li class="empty">No tasks due</li>';
+  const n=nowHM();const up=blocksFor(new Date()).filter(b=>(b.end||b.start)>=n);
+  $('#upNext').innerHTML=up.slice(0,3).map(b=>blockRow(b,true)).join('')||'<li class="empty">Nothing else today. Plan tomorrow →</li>';}
+
+/* ---------- reading ---------- */
+const year=()=>String(new Date().getFullYear());
+const COLORS=['#3ddc97','#4cc3ff','#ffb547','#c792ea','#ff8a80','#80cbc4'];
+const spine=b=>`<div class="spine" style="background:${COLORS[b.title.length%COLORS.length]}">${esc(b.title.trim()[0]||'?').toUpperCase()}</div>`;
+let shelf='reading';
+function bookRow(b){const p=b.pages?Math.min(100,(b.current||0)/b.pages*100):0;
+  return `<li><div class="book grow">${spine(b)}<div class="grow"><div class="title">${esc(b.title)}</div><div class="muted">${esc(b.author||'')}</div>
+  ${b.status==='reading'?`<div class="bar"><i style="width:${p}%"></i></div><div class="muted mono" style="font-size:12px;margin-top:4px">${b.current||0}${b.pages?' / '+b.pages+' pages':' pages'}</div>
+   <div class="row" style="justify-content:flex-start;margin-top:8px"><button class="shrink" data-pg="${b.id}" data-d="10">+10 pg</button><button class="shrink" data-pg-set="${b.id}">Update</button><button class="shrink" data-finish="${b.id}">✓ Finished</button></div>`:''}
+  ${b.status==='want'?`<div class="row" style="justify-content:flex-start;margin-top:8px"><button class="shrink" data-start="${b.id}">Start reading</button></div>`:''}
+  ${b.status==='done'&&b.finished?`<div class="muted" style="font-size:12px">Finished ${new Date(b.finished).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>`:''}
+  </div></div><button class="ghost shrink" data-edit-book="${b.id}">✎</button></li>`;}
+function renderReading(){
+  const done=S.books.filter(b=>b.status==='done'&&b.finished&&String(new Date(b.finished).getFullYear())===year()).length;
+  const tgt=S.readTarget[year()]||12;$('#booksDone').textContent=done;$('#booksTarget').textContent=tgt;$('#booksBar').style.width=Math.min(100,done/tgt*100)+'%';
+  document.querySelectorAll('#shelf button').forEach(b=>b.classList.toggle('on',b.dataset.s===shelf));
+  $('#shelfTitle').textContent={reading:'Reading',want:'Want to read',done:'Finished'}[shelf];
+  const list=S.books.filter(b=>b.status===shelf).sort((a,b)=>(b.finished||b.added)-(a.finished||a.added));
+  $('#bookList').innerHTML=list.map(bookRow).join('')||`<li class="empty">${shelf==='reading'?'Not reading anything yet. Add a book or start one from "Want to read".':'Empty shelf'}</li>`;
+  $('#articleList').innerHTML=S.articles.slice().sort((a,b)=>a.read-b.read||b.saved-a.saved).map(a=>`<li class="${a.read?'done':''}"><button class="chk ${a.read?'on':''}" data-art="${a.id}">${a.read?'✓':''}</button>
+    <div class="grow"><a class="title" href="${esc(a.u)}" target="_blank" rel="noopener">${esc(a.t)}</a><div class="meta">${esc(a.s||'')} · saved ${ago(a.saved/1000)}</div></div>
+    <button class="ghost danger shrink" data-del-art="${a.id}">✕</button></li>`).join('')||'<li class="empty">Tap ＋ on any headline to save it here.</li>';
+  const cur=S.books.filter(b=>b.status==='reading');const unread=S.articles.filter(a=>!a.read).length;
+  $('#readingNow').innerHTML=(cur.length?'<ul class="list">'+cur.slice(0,2).map(bookRow).join('')+'</ul>':'<div class="empty">No book in progress. <button class="ghost" data-act="addBook">+ Add a book</button></div>')
+    +(unread?`<div class="muted" style="margin-top:8px">🔖 ${unread} saved article${unread>1?'s':''} to read · <button class="ghost" data-go="read" data-sub="articles">Open</button></div>`:'');}
+
+/* ---------- training (intervals.icu, client-side) ---------- */
+const FK='cmdcentre.fitkey',FC='cmdcentre.fitcache';
+const lsGet=k=>{try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}};
+const lsSet=(k,v)=>{try{v===null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
+let FIT=lsGet(FC),fitErr='',fitBusy=false;
+const SPORT={Run:'🏃',VirtualRun:'🏃',TrailRun:'🥾',Walk:'🚶',Hike:'🥾',Ride:'🚴',VirtualRide:'🚴',EBikeRide:'🚴',MountainBikeRide:'🚵',GravelRide:'🚴',Swim:'🏊',OpenWaterSwim:'🏊',WeightTraining:'🏋️',Workout:'💪',Yoga:'🧘',Elliptical:'⚙️',Rowing:'🚣',Badminton:'🏸',Tennis:'🎾',Soccer:'⚽',Cricket:'🏏'};
+const dur=s=>{s=Math.round(s||0);const h=Math.floor(s/3600),m=Math.round(s%3600/60);return h?`${h}h ${pad(m)}m`:`${m}m`;};
+const km=m=>m?(m/1000).toFixed(m>=10000?0:1)+' km':'';
+async function fitFetch(force){const cred=lsGet(FK);if(!cred||!cred.key){renderFit();return;}
+  if(fitBusy)return;if(!force&&FIT&&Date.now()-FIT.at<15*60000){renderFit();return;}
+  fitBusy=true;renderFit();
+  const ath=encodeURIComponent(cred.ath||'0'),h={Authorization:'Basic '+btoa('API_KEY:'+cred.key)};
+  const o=new Date();o.setDate(o.getDate()-27);const oldest=dkey(o),newest=dkey();
+  try{const [ar,wr]=await Promise.all([
+      fetch(`https://intervals.icu/api/v1/athlete/${ath}/activities?oldest=${oldest}&newest=${newest}`,{headers:h}),
+      fetch(`https://intervals.icu/api/v1/athlete/${ath}/wellness?oldest=${oldest}&newest=${newest}`,{headers:h})]);
+    if(ar.status===401||ar.status===403)throw new Error('API key or athlete ID not accepted');
+    if(!ar.ok)throw new Error('intervals.icu returned '+ar.status);
+    const acts=(await ar.json()).map(a=>({id:a.id,d:a.start_date_local,type:a.type,name:a.name,dist:a.distance,time:a.moving_time||a.elapsed_time,load:a.icu_training_load,hr:a.average_heartrate,elev:a.total_elevation_gain,cal:a.calories}));
+    const well=wr.ok?(await wr.json()).map(w=>({d:w.id,ctl:w.ctl,atl:w.atl,rhr:w.restingHR,hrv:w.hrv,sleep:w.sleepSecs,steps:w.steps,weight:w.weight})):[];
+    FIT={at:Date.now(),acts,well};lsSet(FC,FIT);fitErr='';
+  }catch(e){fitErr=e.message==='Failed to fetch'?'Could not reach intervals.icu (offline?)':e.message;}
+  fitBusy=false;renderFit();return !fitErr;}
+function actRow(a){return `<li><div style="font-size:22px;width:30px;text-align:center">${SPORT[a.type]||'🏅'}</div><div class="grow"><div class="title">${esc(a.name||a.type)}</div>
+  <div class="meta muted" style="font-size:12px">${new Date(a.d).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})} · ${[km(a.dist),dur(a.time),a.hr?Math.round(a.hr)+' bpm':'',a.load?'load '+Math.round(a.load):''].filter(Boolean).join(' · ')}</div></div></li>`;}
+function renderFit(){const box=$('#fitBody');const cred=lsGet(FK);
+  $('#fitAth').value=cred?.ath||'';$('#fitKey').value=cred?.key?'••••••••':'';
+  $('#fitStatus').textContent=cred?.key?(fitErr?'⚠️ '+fitErr:FIT?'✓ Connected · synced '+ago(FIT.at/1000):'Connected'):'Not connected';
+  if(!cred?.key){box.innerHTML='<div class="empty">See your Garmin workouts, fitness and sleep here. <button class="ghost" data-go="more">Connect intervals.icu →</button></div>';return;}
+  if(!FIT){box.innerHTML=`<div class="muted">${fitBusy?'Syncing…':fitErr?'⚠️ '+esc(fitErr):'No data yet'}</div>`;return;}
+  const w=FIT.well.filter(x=>x.ctl!=null).slice(-1)[0]||{};const lw=FIT.well.slice().reverse();
+  const pick=k=>(lw.find(x=>x[k]!=null)||{})[k];
+  const form=w.ctl!=null&&w.atl!=null?Math.round(w.ctl-w.atl):null;
+  // last 7 days load
+  let bars='',max=1,days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=dkey(d);
+    const v=FIT.acts.filter(a=>(a.d||'').slice(0,10)===k).reduce((s,a)=>s+(a.load||0),0);days.push([d,v]);max=Math.max(max,v);}
+  bars=days.map(([d,v])=>`<div><i style="height:${Math.max(3,v/max*100)}%" title="${Math.round(v)}"></i><span>${'SMTWTFS'[d.getDay()]}</span></div>`).join('');
+  const wk=new Date();wk.setDate(wk.getDate()-6);const wkActs=FIT.acts.filter(a=>(a.d||'').slice(0,10)>=dkey(wk));
+  const rhr=pick('rhr'),hrv=pick('hrv'),sl=pick('sleep'),st=pick('steps');
+  box.innerHTML=(w.ctl!=null?`<div class="stats3"><div class="stat"><b>${Math.round(w.ctl)}</b><small>Fitness</small></div><div class="stat"><b>${Math.round(w.atl)}</b><small>Fatigue</small></div>
+    <div class="stat"><b style="color:${form<-20?'var(--bad)':form>5?'var(--accent2)':'var(--accent)'}">${form>0?'+':''}${form}</b><small>Form</small></div></div>`:'')
+   +((rhr||hrv||sl||st)?`<div class="well">${rhr?`❤️ <b>${Math.round(rhr)}</b> rest`:''}${hrv?`<span>📈 <b>${Math.round(hrv)}</b> HRV</span>`:''}${sl?`<span>😴 <b>${dur(sl)}</b></span>`:''}${st?`<span>👣 <b>${fmt(st)}</b></span>`:''}</div>`:'')
+   +`<div class="muted" style="font-size:12px">Last 7 days · ${wkActs.length} workout${wkActs.length===1?'':'s'} · ${dur(wkActs.reduce((s,a)=>s+(a.time||0),0))}${wkActs.some(a=>a.dist)?' · '+km(wkActs.reduce((s,a)=>s+(a.dist||0),0)):''}</div>
+    <div class="loadbars">${bars}</div>`
+   +'<ul class="list">'+FIT.acts.slice().sort((a,b)=>(b.d||'').localeCompare(a.d||'')).slice(0,3).map(actRow).join('')+'</ul>'
+   +(!FIT.acts.length?'<div class="empty">No workouts in the last 4 weeks</div>':'')
+   +(fitBusy?'<div class="muted" style="font-size:12px">Syncing…</div>':fitErr?`<div class="muted" style="font-size:12px">⚠️ ${esc(fitErr)} — showing last sync</div>`:'');}
+$('#fitRefresh').onclick=()=>fitFetch(true);
+$('#fitAll').onclick=()=>{if(!FIT){go('more');return;}sheet(`<h3>Last 4 weeks</h3><ul class="list">${FIT.acts.slice().sort((a,b)=>(b.d||'').localeCompare(a.d||'')).map(actRow).join('')||'<li class="empty">No workouts</li>'}</ul>`,()=>{});};
+$('#fitSave').onclick=async()=>{const old=lsGet(FK)||{};let key=$('#fitKey').value.trim();if(key.startsWith('••'))key=old.key;
+  if(!key){toast('Paste your API key');return;}lsSet(FK,{ath:$('#fitAth').value.trim()||'0',key});FIT=null;lsSet(FC,null);
+  $('#fitStatus').textContent='Testing…';const ok=await fitFetch(true);toast(ok?'intervals.icu connected ✓':'Connection failed');};
+$('#fitOff').onclick=()=>{lsSet(FK,null);lsSet(FC,null);FIT=null;fitErr='';renderFit();toast('Disconnected');};
+
+/* ---------- other renders ---------- */
+function daysTo(ds){return Math.round((new Date(ds+'T00:00:00')-new Date(dkey()+'T00:00:00'))/864e5);}
+function dueLabel(ds){if(!ds)return '';const n=daysTo(ds);const cls=n<0?'over':n<=2?'soon':'';
+  return `<span class="due ${cls}">${n<0?`${-n}d overdue`:n===0?'Today':n===1?'Tomorrow':`in ${n}d`}</span>`;}
+function streak(h){let s=0;const d=new Date();if(!h.log[dkey(d)])d.setDate(d.getDate()-1);while(h.log[dkey(d)]){s++;d.setDate(d.getDate()-1);}return s;}
+function appTile(a,edit){return `<a class="app" href="${esc(a.url)}" target="_blank" rel="noopener"><div class="ic">${esc(a.emoji||'🔗')}</div><div class="nm">${esc(a.name)}</div>${edit?`<button class="x" data-del-app="${a.id}" aria-label="Remove">×</button>`:''}</a>`;}
+function taskRow(t){return `<li class="${t.done?'done':''}"><button class="chk ${t.done?'on':''}" data-task="${t.id}">${t.done?'✓':''}</button>
+  <div class="grow"><div class="title">${esc(t.text)}</div><div class="row" style="justify-content:flex-start;gap:8px;margin-top:3px"><span class="tag ${t.tag} shrink">${t.tag}</span>${dueLabel(t.due)}</div></div>
+  <button class="ghost shrink" data-edit-task="${t.id}">✎</button></li>`;}
+let editApps=false,taskF='open';
+function render(){
+  tick();
+  $('#appsMini').innerHTML=S.apps.slice(0,6).map(a=>appTile(a,false)).join('')||'<div class="empty">No apps yet</div>';
+  $('#appsAll').innerHTML=S.apps.map(a=>appTile(a,editApps)).join('')||'<div class="empty">No apps yet — tap + Add</div>';
+  $('#editApps').textContent=editApps?'Done':'Edit';
+  const cds=S.countdowns.filter(c=>daysTo(c.date)>=0).sort((a,b)=>a.date.localeCompare(b.date));
+  $('#cdList').innerHTML=cds.map(c=>{const n=daysTo(c.date);return `<div class="cd"><div><div>${esc(c.emoji||'📅')} ${esc(c.name)}</div><div class="muted">${new Date(c.date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div></div>
+    <div style="text-align:right"><div class="n mono">${n===0?'Today':n}</div>${n?'<div class="muted">days</div>':''}<button class="ghost danger" data-del-cd="${c.id}" style="font-size:11px">remove</button></div></div>`}).join('')||'<div class="empty">Add a trip or deadline to count down to.</div>';
+  const open=S.tasks.filter(t=>!t.done);
+  $('#dueList').innerHTML=open.filter(t=>t.due&&daysTo(t.due)<=7).sort((a,b)=>a.due.localeCompare(b.due)).slice(0,5).map(taskRow).join('')||'<li class="empty">Nothing due this week 🎉</li>';
+  $('#taskStat').textContent=`${open.length} open item${open.length===1?'':'s'}`;
+  let tl=S.tasks.slice();
+  if(taskF==='open')tl=tl.filter(t=>!t.done);else if(taskF==='done')tl=tl.filter(t=>t.done);else tl=tl.filter(t=>!t.done&&t.tag===taskF);
+  tl.sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999')||b.created-a.created);
+  $('#taskList').innerHTML=tl.map(taskRow).join('')||'<li class="empty">Empty</li>';
+  document.querySelectorAll('#taskFilter button').forEach(b=>b.classList.toggle('on',b.dataset.f===taskF));
+  const today=dkey();
+  $('#todayStat').textContent=`${S.habits.filter(h=>h.log[today]).length}/${S.habits.length}`;
+  $('#habitToday').innerHTML=S.habits.map(h=>`<li><button class="chk ${h.log[today]?'on':''}" data-habit="${h.id}">${h.log[today]?'✓':''}</button><div class="grow"><div class="title">${esc(h.emoji||'')} ${esc(h.name)}</div></div><span class="streak">${streak(h)?'🔥 '+streak(h):''}</span></li>`).join('')||'<li class="empty">No habits yet</li>';
+  $('#habitList').innerHTML=S.habits.map(h=>{let wk='';for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);wk+=`<span class="${h.log[dkey(d)]?'on':''}"></span>`;}
+    return `<li><button class="chk ${h.log[today]?'on':''}" data-habit="${h.id}">${h.log[today]?'✓':''}</button><div class="grow"><div class="title">${esc(h.emoji||'')} ${esc(h.name)}</div><div class="week">${wk}</div></div>
+    <div style="text-align:right"><div class="streak">🔥 ${streak(h)}</div><button class="ghost danger" data-del-habit="${h.id}" style="font-size:11px">remove</button></div></li>`}).join('')||'<li class="empty">No habits yet</li>';
+  $('#goalList').innerHTML=S.goals.map(g=>{const p=g.target?Math.min(100,g.current/g.target*100):0;
+    return `<li><div class="grow"><div class="row" style="justify-content:space-between"><div class="title">${esc(g.name)}</div><div class="mono muted shrink">${fmt(g.current)} / ${fmt(g.target)} ${esc(g.unit||'')}</div></div><div class="bar"><i style="width:${p}%"></i></div>
+    <div class="row" style="margin-top:8px;justify-content:flex-start"><button class="shrink" data-goal-step="${g.id}" data-d="-1">−1</button><button class="shrink" data-goal-step="${g.id}" data-d="1">+1</button><button class="shrink" data-goal-set="${g.id}">Update</button><span></span><button class="ghost danger shrink" data-del-goal="${g.id}">remove</button></div></div></li>`}).join('')||'<li class="empty">No goals yet — e.g. "Run 50 km before the trek"</li>';
+  $('#setName').value=S.name||'';$('#setCity').value=S.city?.name||'';
+  renderSchedule();renderReading();renderNews();renderHomeNews();renderFit();
+}
+
+/* ---------- sheet ---------- */
+function sheet(html,onSubmit){
+  $('#sheet').innerHTML=`<form id="sheetForm">${html}<div class="actions"><button type="button" id="sheetCancel">Cancel</button><button class="primary" type="submit">Save</button></div></form>`;
+  $('#sheetBg').classList.add('on');const f=$('#sheetForm');
+  f.onsubmit=e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(f));fd._days=[...f.querySelectorAll('input[name=dow]:checked')].map(i=>+i.value);
+    if(onSubmit(fd)!==false){closeSheet();save();render();}};
+  $('#sheetCancel').onclick=closeSheet;}
+function closeSheet(){$('#sheetBg').classList.remove('on');}
+$('#sheetBg').addEventListener('click',e=>{if(e.target.id==='sheetBg')closeSheet();});
+function confirmSheet(msg,fn){sheet(`<h3>Are you sure?</h3><p class="muted">${esc(msg)}</p>`,()=>{fn();});}
+function delBtn(id){return `<div style="margin-top:14px"><button type="button" class="danger" id="${id}">Delete</button></div>`;}
+const opt=(v,cur,l)=>`<option value="${v}" ${v===cur?'selected':''}>${l}</option>`;
+
+function taskForm(t){const isNew=!t;t=t||{text:'',tag:'Task',due:''};
+  sheet(`<h3>${isNew?'New item':'Edit item'}</h3><label>What</label><input name="text" required value="${esc(t.text)}">
+    <label>Type</label><select name="tag">${['Task','Idea','Reminder'].map(x=>opt(x,t.tag,x)).join('')}</select>
+    <label>Due date (optional)</label><input type="date" name="due" value="${esc(t.due||'')}">${isNew?'':delBtn('delX')}`,
+    fd=>{if(isNew)S.tasks.push({id:uid(),text:fd.text.trim(),tag:fd.tag,due:fd.due||'',done:false,created:Date.now()});else Object.assign(t,{text:fd.text.trim(),tag:fd.tag,due:fd.due||''});});
+  if(!isNew)$('#delX').onclick=()=>{S.tasks=S.tasks.filter(x=>x.id!==t.id);save();closeSheet();render();toast('Deleted');};}
+
+function blockForm(b){const isNew=!b;b=b||{title:'',emoji:'',start:'09:00',end:'',repeat:'once',days:[],date:selDay};
+  const dpick=DOW.map((n,i)=>`<label><input type="checkbox" name="dow" value="${i}" ${(b.days||[]).includes(i)?'checked':''}>${n}</label>`).join('');
+  sheet(`<h3>${isNew?'Add to schedule':'Edit block'}</h3><label>What</label><input name="title" required value="${esc(b.title)}" placeholder="Gym, standup, call Amma…">
+    <label>Emoji</label><input name="emoji" maxlength="4" value="${esc(b.emoji||'')}" placeholder="🏋️">
+    <div class="row"><div><label>Start</label><input type="time" name="start" required value="${esc(b.start)}"></div><div><label>End (optional)</label><input type="time" name="end" value="${esc(b.end||'')}"></div></div>
+    <label>Repeats</label><select name="repeat" id="repSel">${opt('once',b.repeat,'Just once')}${opt('daily',b.repeat,'Every day')}${opt('weekdays',b.repeat,'Weekdays (Mon–Fri)')}${opt('weekly',b.repeat,'Specific days')}</select>
+    <div id="onceBox"><label>Date</label><input type="date" name="date" value="${esc(b.date||selDay)}"></div>
+    <div id="daysBox"><label>Days</label><div class="daypick">${dpick}</div></div>${isNew?'':delBtn('delX')}`,
+    fd=>{const v={title:fd.title.trim(),emoji:fd.emoji.trim(),start:fd.start,end:fd.end&&fd.end>fd.start?fd.end:'',repeat:fd.repeat,days:fd._days,date:fd.repeat==='once'?fd.date:''};
+      if(v.repeat==='weekly'&&!v.days.length){toast('Pick at least one day');return false;}
+      if(isNew)S.schedule.push({id:uid(),...v});else Object.assign(b,v);});
+  const sync=()=>{const r=$('#repSel').value;$('#onceBox').style.display=r==='once'?'':'none';$('#daysBox').style.display=r==='weekly'?'':'none';};
+  $('#repSel').onchange=sync;sync();
+  if(!isNew)$('#delX').onclick=()=>{S.schedule=S.schedule.filter(x=>x.id!==b.id);save();closeSheet();render();toast('Removed');};}
+
+function bookForm(b){const isNew=!b;b=b||{title:'',author:'',pages:'',status:shelf==='done'?'done':shelf};
+  sheet(`<h3>${isNew?'Add book':'Edit book'}</h3><label>Title</label><input name="title" required value="${esc(b.title)}">
+    <label>Author</label><input name="author" value="${esc(b.author||'')}"><label>Total pages (optional)</label><input name="pages" type="number" min="0" value="${esc(b.pages||'')}">
+    <label>Shelf</label><select name="status">${opt('reading',b.status,'Reading')}${opt('want',b.status,'Want to read')}${opt('done',b.status,'Finished')}</select>${isNew?'':delBtn('delX')}`,
+    fd=>{const v={title:fd.title.trim(),author:fd.author.trim(),pages:+fd.pages||0,status:fd.status};
+      if(isNew){S.books.push({id:uid(),...v,current:0,added:Date.now(),finished:v.status==='done'?Date.now():null});}
+      else{if(v.status==='done'&&b.status!=='done')b.finished=Date.now();if(v.status!=='done')b.finished=null;Object.assign(b,v);}
+      shelf=v.status;});
+  if(!isNew)$('#delX').onclick=()=>{S.books=S.books.filter(x=>x.id!==b.id);save();closeSheet();render();toast('Removed');};}
+
+const ACTS={
+  addTask:()=>taskForm(), addBlock:()=>blockForm(), addBook:()=>bookForm(),
+  addArticle:()=>sheet(`<h3>Save a link</h3><label>Title</label><input name="t" required><label>URL</label><input name="u" type="url" required placeholder="https://…">`,
+    fd=>{S.articles.push({id:uid(),t:fd.t.trim(),u:fd.u.trim(),s:'',saved:Date.now(),read:false});}),
+  addApp:()=>sheet(`<h3>Add app</h3><label>Name</label><input name="name" required><label>Emoji</label><input name="emoji" placeholder="🚀" maxlength="4"><label>URL</label><input name="url" type="url" required placeholder="https://…">`,
+    fd=>{S.apps.push({id:uid(),name:fd.name.trim(),emoji:fd.emoji.trim()||'🔗',url:fd.url.trim()});toast('App added');}),
+  addCountdown:()=>sheet(`<h3>New countdown</h3><label>Event</label><input name="name" required><label>Emoji</label><input name="emoji" placeholder="🏔️" maxlength="4"><label>Date</label><input type="date" name="date" required>`,
+    fd=>{S.countdowns.push({id:uid(),name:fd.name.trim(),emoji:fd.emoji.trim(),date:fd.date});}),
+  addHabit:()=>sheet(`<h3>New habit</h3><label>Habit</label><input name="name" required placeholder="Drink 3L water"><label>Emoji</label><input name="emoji" maxlength="4" placeholder="💧">`,
+    fd=>{S.habits.push({id:uid(),name:fd.name.trim(),emoji:fd.emoji.trim(),log:{}});}),
+  addGoal:()=>sheet(`<h3>New goal</h3><label>Goal</label><input name="name" required><div class="row"><div><label>Current</label><input name="current" type="number" step="any" value="0"></div><div><label>Target</label><input name="target" type="number" step="any" required></div></div><label>Unit (optional)</label><input name="unit" placeholder="km, ₹, hours…">`,
+    fd=>{S.goals.push({id:uid(),name:fd.name.trim(),current:+fd.current||0,target:+fd.target||1,unit:fd.unit.trim()});})
+};
+
+/* ---------- navigation ---------- */
+const VIEWS=['home','news','plan','read','more'];
+function setSub(group,sub){
+  if(group==='plan'){document.querySelectorAll('#planSeg button').forEach(b=>b.classList.toggle('on',b.dataset.sub===sub));$('#p-schedule').style.display=sub==='schedule'?'':'none';$('#p-tasks').style.display=sub==='tasks'?'':'none';}
+  if(group==='read'){document.querySelectorAll('#readSeg button').forEach(b=>b.classList.toggle('on',b.dataset.sub===sub));$('#r-books').style.display=sub==='books'?'':'none';$('#r-articles').style.display=sub==='articles'?'':'none';}}
+function go(v,sub){if(!VIEWS.includes(v))v='home';
+  VIEWS.forEach(x=>$('#v-'+x).classList.toggle('on',x===v));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===v));
+  if(sub)setSub(v,sub);
+  if(v==='news'&&!NEWS)loadNews();
+  if(location.hash!=='#'+v){try{history.replaceState(null,'','#'+v);}catch(e){}}
+  window.scrollTo(0,0);}
+window.addEventListener('hashchange',()=>go(location.hash.slice(1)));
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.go){go(d.go,d.sub);return;}
+  if(d.sub){const g=b.closest('#planSeg')?'plan':b.closest('#readSeg')?'read':null;if(g)setSub(g,d.sub);return;}
+  if(d.act&&ACTS[d.act]){ACTS[d.act]();return;}
+  if(d.cat){S.newsCat=d.cat;save();renderNews();return;}
+  if(d.day){selDay=d.day;renderSchedule();return;}
+  if(d.s){shelf=d.s;renderReading();return;}
+  if(d.saveNews){e.preventDefault();const u=d.saveNews;const ex=S.articles.find(a=>a.u===u);
+    if(ex){S.articles=S.articles.filter(a=>a!==ex);toast('Removed from saved');}
+    else{let n=null;for(const c of NEWS?.categories||[]){n=c.items.find(i=>i.u===u);if(n)break;}
+      S.articles.push({id:uid(),t:n?.t||u,u,s:n?.s||'',saved:Date.now(),read:false});toast('Saved for later 🔖');}
+    save();renderNews();renderHomeNews();renderReading();return;}
+  if(d.art){const a=S.articles.find(x=>x.id===d.art);a.read=!a.read;save();renderReading();return;}
+  if(d.delArt){S.articles=S.articles.filter(x=>x.id!==d.delArt);save();renderReading();return;}
+  if(d.task){const t=S.tasks.find(x=>x.id===d.task);t.done=!t.done;save();render();if(t.done)toast('Done ✓');return;}
+  if(d.editTask){taskForm(S.tasks.find(x=>x.id===d.editTask));return;}
+  if(d.editBlock){blockForm(S.schedule.find(x=>x.id===d.editBlock));return;}
+  if(d.editBook){bookForm(S.books.find(x=>x.id===d.editBook));return;}
+  if(d.pg){const bk=S.books.find(x=>x.id===d.pg);bk.current=(bk.current||0)+ +d.d;if(bk.pages)bk.current=Math.min(bk.current,bk.pages);save();renderReading();return;}
+  if(d.pgSet){const bk=S.books.find(x=>x.id===d.pgSet);sheet(`<h3>${esc(bk.title)}</h3><label>Current page</label><input name="c" type="number" min="0" value="${bk.current||0}"><label>Total pages</label><input name="p" type="number" min="0" value="${bk.pages||''}">`,fd=>{bk.current=+fd.c||0;bk.pages=+fd.p||0;});return;}
+  if(d.finish){const bk=S.books.find(x=>x.id===d.finish);bk.status='done';bk.finished=Date.now();if(bk.pages)bk.current=bk.pages;save();render();toast('📚 Book finished! Nice.');return;}
+  if(d.start){const bk=S.books.find(x=>x.id===d.start);bk.status='reading';bk.current=bk.current||0;shelf='reading';save();render();return;}
+  if(d.habit){const h=S.habits.find(x=>x.id===d.habit);const k=dkey();if(h.log[k])delete h.log[k];else h.log[k]=1;save();render();return;}
+  if(d.delApp){e.preventDefault();S.apps=S.apps.filter(a=>a.id!==d.delApp);save();render();return;}
+  if(d.delCd){S.countdowns=S.countdowns.filter(c=>c.id!==d.delCd);save();render();return;}
+  if(d.delHabit){confirmSheet('Remove this habit and its history?',()=>{S.habits=S.habits.filter(h=>h.id!==d.delHabit);});return;}
+  if(d.delGoal){confirmSheet('Remove this goal?',()=>{S.goals=S.goals.filter(g=>g.id!==d.delGoal);});return;}
+  if(d.goalStep){const g=S.goals.find(x=>x.id===d.goalStep);g.current=Math.max(0,+g.current+ +d.d);save();render();return;}
+  if(d.goalSet){const g=S.goals.find(x=>x.id===d.goalSet);sheet(`<h3>${esc(g.name)}</h3><div class="row"><div><label>Current</label><input name="current" type="number" step="any" value="${g.current}"></div><div><label>Target</label><input name="target" type="number" step="any" value="${g.target}"></div></div>`,fd=>{g.current=+fd.current||0;g.target=+fd.target||1;});return;}
+});
+document.addEventListener('click',e=>{if(editApps&&e.target.closest('#appsAll .app')&&!e.target.closest('.x'))e.preventDefault();},true);
+$('#editApps').onclick=()=>{editApps=!editApps;render();};
+$('#taskFilter').onclick=e=>{const b=e.target.closest('button');if(b){taskF=b.dataset.f;render();}};
+$('#setTarget').onclick=()=>sheet(`<h3>Reading target ${year()}</h3><label>Books this year</label><input name="n" type="number" min="1" value="${S.readTarget[year()]||12}">`,fd=>{S.readTarget[year()]=+fd.n||12;});
+
+$('#quickForm').onsubmit=e=>{e.preventDefault();const v=$('#quickIn').value.trim();if(!v)return;
+  let tag='Task',text=v;const m=v.match(/^(idea|remind(?:er)?|todo|task)\s*[:\-]\s*/i);
+  if(m){const k=m[1].toLowerCase();tag=k.startsWith('idea')?'Idea':k.startsWith('remind')?'Reminder':'Task';text=v.slice(m[0].length);}
+  let due='';if(/\btoday\b/i.test(text))due=dkey();else if(/\btomorrow\b/i.test(text)){const d=new Date();d.setDate(d.getDate()+1);due=dkey(d);}
+  if(due)text=text.replace(/\s*\b(today|tomorrow)\b\s*/i,' ').trim()||text;
+  S.tasks.push({id:uid(),text,tag,due,done:false,created:Date.now()});$('#quickIn').value='';save();render();toast(`Added to ${tag}s`);};
+
+$('#saveProfile').onclick=async()=>{S.name=$('#setName').value.trim();const city=$('#setCity').value.trim();
+  if(city&&city!==S.city.name){try{const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&name='+encodeURIComponent(city));const j=await r.json();
+      if(j.results&&j.results[0]){const g=j.results[0];S.city={name:g.name,lat:g.latitude,lon:g.longitude};}else{toast('City not found');return;}}
+    catch(e){toast('Needs internet to look up city');return;}}
+  save();render();weather();toast('Saved');};
+$('#useLoc').onclick=()=>{if(!navigator.geolocation){toast('Location not available');return;}
+  navigator.geolocation.getCurrentPosition(p=>{S.city={name:'My location',lat:+p.coords.latitude.toFixed(3),lon:+p.coords.longitude.toFixed(3)};save();render();weather();toast('Location set');},()=>toast('Location blocked'));};
+
+const backup=()=>JSON.stringify({app:'command-centre',v:2,at:new Date().toISOString(),data:S},null,1);
+function restore(txt){try{const j=JSON.parse(txt);const d=j.data||j;if(!d.apps||!d.tasks)throw 0;S=d;fill();save();render();weather();toast('Restored');return true;}catch(e){toast('Not a valid backup');return false;}}
+$('#exportBtn').onclick=()=>{try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([backup()],{type:'application/json'}));a.download=`command-centre-${dkey()}.json`;a.click();toast('Backup downloaded');}catch(e){toast('Download blocked — use Copy');}};
+$('#copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText(backup());toast('Backup copied');}catch(e){sheet(`<h3>Backup</h3><textarea rows="8" readonly>${esc(backup())}</textarea>`,()=>{});}};
+$('#pasteBtn').onclick=()=>sheet(`<h3>Paste backup</h3><textarea name="b" rows="8" required></textarea>`,fd=>restore(fd.b));
+$('#importFile').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(restore);e.target.value='';};
+$('#resetBtn').onclick=()=>confirmSheet('This wipes all your data on this device.',()=>{S=structuredClone(SEED);});
+
+/* ---------- boot ---------- */
+load();render();weather();loadNews();fitFetch();go(location.hash.slice(1)||'home');
+setInterval(()=>{tick();renderSchedule();},30000);setInterval(weather,30*60000);setInterval(loadNews,20*60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadNews();fitFetch();}});
+if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|claudeusercontent/.test(location.hostname)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+})();
+</script>
+</body>
+</html>
