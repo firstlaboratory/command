@@ -8,6 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -213,6 +214,13 @@ nav button.on{color:var(--accent)}
   <div class="card"><h2>Habits <button class="ghost" data-act="addHabit">+ Add</button></h2><ul class="list" id="habitList"></ul></div>
   <div class="card"><h2>Goals <button class="ghost" data-act="addGoal">+ Add</button></h2><ul class="list" id="goalList"></ul></div>
   <div class="card"><h2>My apps <span><button class="ghost" id="editApps">Edit</button> <button class="ghost" data-act="addApp">+ Add</button></span></h2><div class="apps" id="appsAll"></div></div>
+  <div class="card"><h2>Sync across devices</h2>
+    <p class="muted" style="margin-top:0">Sign in with Google to keep everything in sync on all your devices. Data is saved in a hidden app folder in <b>your own</b> Google Drive.</p>
+    <div id="syncInfo" class="muted" style="margin-bottom:10px">Not signed in</div>
+    <div class="row"><button class="primary" id="gIn">Sign in with Google</button><button id="gSync" style="display:none">Sync now</button><button class="danger shrink" id="gOut" style="display:none">Sign out</button></div>
+    <details style="margin-top:10px"><summary class="muted" style="cursor:pointer">Google Client ID</summary>
+      <input id="gCid" placeholder="xxxx.apps.googleusercontent.com" style="margin-top:8px"><button id="gCidSave" style="margin-top:8px">Save Client ID</button></details>
+  </div>
   <div class="card"><h2>Garmin via intervals.icu</h2>
     <p class="muted" style="margin-top:0">In intervals.icu: Settings → Connections → link Garmin. Then Settings → Developer Settings → copy your API key. The key stays on this phone only (not in backups).</p>
     <label class="muted">Athlete ID (leave 0 for yourself)</label><input id="fitAth" placeholder="0">
@@ -232,7 +240,7 @@ nav button.on{color:var(--accent)}
     <div class="row" style="margin-top:8px"><label class="btn" style="text-align:center">Restore from file<input type="file" id="importFile" accept=".json,application/json" hidden></label><button id="pasteBtn">Paste backup</button></div>
   </div>
   <div class="card"><h2>Danger zone</h2><button class="danger" id="resetBtn">Reset everything</button></div>
-  <p class="muted" style="text-align:center">Command Centre v3 · firstlaboratory</p>
+  <p class="muted" style="text-align:center">Command Centre v4 · firstlaboratory</p>
 </section>
 </div>
 
@@ -286,7 +294,7 @@ const SEED={
 let S;
 function fill(){for(const k of Object.keys(SEED)) if(S[k]===undefined) S[k]=structuredClone(SEED[k]);}
 function load(){try{const raw=localStorage.getItem(KEY);S=raw?JSON.parse(raw):structuredClone(SEED);}catch(e){S=structuredClone(SEED);}fill();}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));$('#syncState').textContent='Saved on device';}catch(e){$('#syncState').textContent='Not saving (storage blocked)';}}
+function save(){S._mod=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S));if(window.__sync)window.__sync.changed();$('#syncState').textContent='Saved on device';}catch(e){$('#syncState').textContent='Not saving (storage blocked)';}}
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1800);}
 
 /* ---------- header ---------- */
@@ -605,10 +613,81 @@ $('#pasteBtn').onclick=()=>sheet(`<h3>Paste backup</h3><textarea name="b" rows="
 $('#importFile').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(restore);e.target.value='';};
 $('#resetBtn').onclick=()=>confirmSheet('This wipes all your data on this device.',()=>{S=structuredClone(SEED);});
 
+
+/* ---------- Google Drive sync (appDataFolder) ---------- */
+const CLIENT_ID_DEFAULT='';            // set once you have it, e.g. '1234-abc.apps.googleusercontent.com'
+const SM='cmdcentre.syncmeta', FILE='command-centre.json';
+const SCOPE='https://www.googleapis.com/auth/drive.appdata email';
+const ID_ARRAYS=['apps','tasks','countdowns','habits','goals','schedule','books','articles'];
+let meta=lsGet(SM)||{}; const saveMeta=()=>lsSet(SM,meta);
+let tok=null,tokExp=0,tc=null,pushT=null,syncing=false,syncErr='';
+const cid=()=>CLIENT_ID_DEFAULT||meta.cid||'';
+function mergeState(L,R){ // used only when both sides changed since last sync
+  const newer=(R._mod||0)>(L._mod||0)?R:L, older=newer===R?L:R, out=structuredClone(newer);
+  for(const k of ID_ARRAYS){const ids=new Set((newer[k]||[]).map(x=>x.id));
+    for(const it of older[k]||[]) if(!ids.has(it.id)) (out[k]=out[k]||[]).push(structuredClone(it));}
+  for(const h of out.habits||[]){const o=(older.habits||[]).find(x=>x.id===h.id);if(o)h.log=Object.assign({},o.log,h.log);}
+  out.readTarget=Object.assign({},older.readTarget,newer.readTarget);
+  return out;}
+function syncLabel(){const box=$('#syncInfo');if(!box)return;
+  const signed=!!meta.email;
+  $('#gIn').style.display=signed&&tok?'none':'';$('#gIn').textContent=signed?'Reconnect Google':'Sign in with Google';
+  $('#gSync').style.display=signed&&tok?'':'none';$('#gOut').style.display=signed?'':'none';
+  $('#gCid').value=meta.cid||'';
+  box.innerHTML=!cid()?'⚠️ Add your Google Client ID below first.'
+    :!signed?'Not signed in'
+    :`Signed in as <b>${esc(meta.email)}</b><br>${syncing?'Syncing…':syncErr?'⚠️ '+esc(syncErr):meta.last?'✓ Synced '+ago(meta.last/1000):'Not synced yet'}`;
+  if(signed)$('#syncState').textContent=syncing?'Syncing…':syncErr?'Sync paused — tap More':meta.last?'Synced '+ago(meta.last/1000):'Saved on device';}
+function getToken(interactive){return new Promise((res,rej)=>{
+  if(tok&&Date.now()<tokExp-60000)return res(tok);
+  if(!cid())return rej(new Error('No Client ID'));
+  if(!window.google?.accounts?.oauth2)return rej(new Error('Google sign-in not loaded (offline?)'));
+  tc=google.accounts.oauth2.initTokenClient({client_id:cid(),scope:SCOPE,hint:meta.email||undefined,
+    callback:r=>{if(r.error)return rej(new Error(r.error_description||r.error));tok=r.access_token;tokExp=Date.now()+(r.expires_in||3600)*1000;res(tok);},
+    error_callback:e=>rej(new Error(e.type==='popup_closed'?'Sign-in cancelled':e.type==='popup_failed_to_open'?'Tap "Reconnect Google" to sync':e.message||e.type))});
+  tc.requestAccessToken({prompt:interactive&&!meta.email?'consent':''});});}
+async function api(path,opt={}){const t=await getToken(false);
+  const r=await fetch('https://www.googleapis.com/'+path,{...opt,headers:{Authorization:'Bearer '+t,...(opt.headers||{})}});
+  if(r.status===401){tok=null;throw new Error('Session expired — tap Reconnect');}
+  if(!r.ok)throw new Error('Drive error '+r.status);return r;}
+async function findFile(){if(meta.fileId)return meta.fileId;
+  const j=await (await api(`drive/v3/files?spaces=appDataFolder&q=${encodeURIComponent(`name='${FILE}'`)}&fields=files(id)`)).json();
+  meta.fileId=j.files?.[0]?.id||null;saveMeta();return meta.fileId;}
+async function upload(state){const body=JSON.stringify(state);
+  if(meta.fileId){try{await api(`upload/drive/v3/files/${meta.fileId}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body});return;}
+    catch(e){if(!/404/.test(e.message))throw e;meta.fileId=null;}}
+  const b='cmdb'+Date.now(),mp=`--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify({name:FILE,parents:['appDataFolder']})}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body}\r\n--${b}--`;
+  const j=await (await api('upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:mp})).json();
+  meta.fileId=j.id;saveMeta();}
+async function syncNow(){if(syncing||!meta.email)return;syncing=true;syncErr='';syncLabel();
+  try{const id=await findFile();let R=null;
+    if(id){try{R=await (await api(`drive/v3/files/${id}?alt=media`)).json();}catch(e){if(/404/.test(e.message)){meta.fileId=null;}else throw e;}}
+    const base=meta.base||0,lc=(S._mod||0)>base,rc=R&&(R._mod||0)>base;
+    if(!R){if(!S._mod)S._mod=Date.now();await upload(S);meta.base=S._mod;}
+    else if(rc&&!lc){S=R;fill();try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}meta.base=S._mod;render();toast('Synced from your other device');}
+    else if(lc&&!rc){await upload(S);meta.base=S._mod;}
+    else if(lc&&rc){S=mergeState(S,R);fill();S._mod=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}await upload(S);meta.base=S._mod;render();toast('Merged changes from both devices');}
+    meta.last=Date.now();saveMeta();
+  }catch(e){syncErr=e.message;}
+  syncing=false;syncLabel();}
+function initSync(){
+  window.__sync={changed(){if(!meta.email)return;clearTimeout(pushT);pushT=setTimeout(syncNow,2500);},pull(){if(meta.email)syncNow();}};
+  $('#gIn').onclick=async()=>{if(!cid()){toast('Add your Client ID first');return;}
+    try{await getToken(true);const u=await (await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+tok}})).json();
+      meta.email=u.email||'Google account';saveMeta();await syncNow();if(!syncErr)toast('Sync is on ✓');}
+    catch(e){syncErr=e.message;toast(e.message);syncLabel();}};
+  $('#gSync').onclick=()=>syncNow();
+  $('#gOut').onclick=()=>{try{tok&&google.accounts.oauth2.revoke(tok,()=>{});}catch(e){}tok=null;meta={cid:meta.cid};saveMeta();syncErr='';syncLabel();$('#syncState').textContent='Saved on device';toast('Signed out — data stays on this device');};
+  $('#gCidSave').onclick=()=>{meta.cid=$('#gCid').value.trim();saveMeta();syncLabel();toast('Client ID saved');};
+  syncLabel();
+  if(meta.email){const start=()=>syncNow();if(window.google?.accounts)start();else window.addEventListener('load',()=>setTimeout(start,300));}
+  setInterval(()=>{if(meta.email&&!document.hidden)syncNow();},5*60000);
+  setInterval(syncLabel,30000);}
+
 /* ---------- boot ---------- */
-load();render();weather();loadNews();fitFetch();go(location.hash.slice(1)||'home');
+load();render();weather();loadNews();fitFetch();initSync();go(location.hash.slice(1)||'home');
 setInterval(()=>{tick();renderSchedule();},30000);setInterval(weather,30*60000);setInterval(loadNews,20*60000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadNews();fitFetch();}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();loadNews();fitFetch();window.__sync&&window.__sync.pull();}});
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|claudeusercontent/.test(location.hostname)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 })();
 </script>

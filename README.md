@@ -7,5 +7,6 @@ Personal dashboard PWA — live at **https://firstlaboratory.github.io/command/*
 - **Plan** — repeating schedule blocks and a task inbox
 - **Read** — book shelves with page progress, yearly target, saved articles
 - **Training** — Garmin data via intervals.icu (API key stays on your device)
+- **Sync** — sign in with Google; data syncs via a hidden app folder in your own Drive
 
 Data is stored in the browser on your device (use More → Backup). Headlines are refreshed every 3 hours by the `Refresh news` GitHub Action into `data/news.json`.
