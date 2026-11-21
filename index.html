@@ -158,6 +158,9 @@ textarea{resize:vertical}
 .badge.gold{border-color:var(--warn);color:var(--warn)} .tam-up{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
 .tile-off{display:none!important} .grid2{margin-bottom:12px}
 .lay li{gap:6px} .lay .mv{padding:6px 10px;font-size:16px} .lay .mv:disabled{opacity:.3} .lay li.off .title{color:var(--dim);text-decoration:line-through}
+.idea{background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px;margin:8px 0}
+.idea .t{font-weight:600;font-size:15px} .idea .d{font-size:14px;color:var(--dim);margin-top:6px;line-height:1.45}
+.ring{display:flex;align-items:center;gap:14px}
 .tk-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
 .tk-cat{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px}
 .tk-cat .nm{width:96px;flex:0 0 96px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -210,6 +213,7 @@ textarea{resize:vertical}
   <div data-tile="countdowns" class="card"><h2>Countdowns <button class="ghost" data-act="addCountdown">+ Add</button></h2><div id="cdList"></div></div>
   <div data-tile="due" class="card"><h2>Due soon <button class="ghost" data-go="plan" data-sub="tasks">All tasks →</button></h2><ul class="list" id="dueList"></ul></div>
   <div data-tile="habits" class="card"><h2>Today's habits <button class="ghost" data-go="more">Manage →</button></h2><ul class="list" id="habitToday"></ul></div>
+  <div data-tile="mozhi" class="card"><h2>🗣️ Mozhi <a class="ghost" style="color:var(--accent2);text-decoration:none;font-size:11px;text-transform:none;letter-spacing:0" href="https://firstlaboratory.github.io/mozhi/" target="_blank" rel="noopener">Practice →</a></h2><div id="mozhiHome"></div></div>
   <div data-tile="launch" class="card"><h2>Launch <button class="ghost" data-go="more">Edit →</button></h2><div class="apps" id="appsMini"></div></div>
 
   <div id="homeCustom" style="text-align:center;margin:4px 0 12px"><button class="ghost" data-act="layout">⚙️ Customize home</button></div></section>
@@ -259,6 +263,8 @@ textarea{resize:vertical}
     <div class="row"><div><span class="big mono" id="booksDone">0</span><span class="muted"> / <span id="booksTarget">12</span> books</span></div></div>
     <div class="bar"><i id="booksBar" style="width:0"></i></div>
   </div>
+  <div class="card" id="saaramCard"><h2>📖 Saaram <a class="ghost" style="color:var(--accent2);text-decoration:none;font-size:11px;text-transform:none;letter-spacing:0" href="https://firstlaboratory.github.io/saaram/" target="_blank" rel="noopener">Open →</a></h2><div id="saaramBody"><div class="muted">Loading…</div></div></div>
+  <div class="card" id="mozhiReadCard"><h2>🗣️ Mozhi <a class="ghost" style="color:var(--accent2);text-decoration:none;font-size:11px;text-transform:none;letter-spacing:0" href="https://firstlaboratory.github.io/mozhi/" target="_blank" rel="noopener">Open →</a></h2><div id="mozhiRead"></div></div>
   <div class="seg" id="readSeg"><button data-sub="books" class="on">Books</button><button data-sub="articles">Saved articles</button></div>
   <div id="r-books">
     <div class="chips" id="shelf"><button data-s="reading" class="on">Reading</button><button data-s="want">Want to read</button><button data-s="done">Finished</button></div>
@@ -314,7 +320,7 @@ textarea{resize:vertical}
     <div class="row" style="margin-top:8px"><label class="btn" style="text-align:center">Restore from file<input type="file" id="importFile" accept=".json,application/json" hidden></label><button id="pasteBtn">Paste backup</button></div>
   </div>
   <div class="card"><h2>Danger zone</h2><button class="danger" id="resetBtn">Reset everything</button></div>
-  <p class="muted" style="text-align:center">Command Centre v9 · firstlaboratory</p>
+  <p class="muted" style="text-align:center">Command Centre v10 · firstlaboratory</p>
   <div class="card"><h2>Live train timetable (RailRadar)</h2>
     <p class="muted" style="margin-top:0">Optional. Free key from railradar.in (100 searches/month; results are cached). Without it, Travel uses Google Maps, redBus and IRCTC links.</p>
     <input id="rrKey" type="password" autocomplete="off" placeholder="RailRadar API key"><div class="row" style="margin-top:8px"><button id="rrSave">Save key</button></div>
@@ -580,7 +586,7 @@ function render(){
     return `<li><div class="grow"><div class="row" style="justify-content:space-between"><div class="title">${esc(g.name)}</div><div class="mono muted shrink">${fmt(g.current)} / ${fmt(g.target)} ${esc(g.unit||'')}</div></div><div class="bar"><i style="width:${p}%"></i></div>
     <div class="row" style="margin-top:8px;justify-content:flex-start"><button class="shrink" data-goal-step="${g.id}" data-d="-1">−1</button><button class="shrink" data-goal-step="${g.id}" data-d="1">+1</button><button class="shrink" data-goal-set="${g.id}">Update</button><span></span><button class="ghost danger shrink" data-del-goal="${g.id}">remove</button></div></div></li>`}).join('')||'<li class="empty">No goals yet — e.g. "Run 50 km before the trek"</li>';
   $('#setName').value=S.name||'';$('#setCity').value=S.city?.name||'';
-  renderSchedule();renderReading();renderNews();renderHomeNews();renderFit();renderTrickle();renderExtras();renderYT();renderTravel();renderTamil();applyLayout();
+  renderSchedule();renderReading();renderNews();renderHomeNews();renderFit();renderTrickle();renderExtras();renderYT();renderTravel();renderTamil();renderMozhi();renderSaaram();applyLayout();
 }
 
 /* ---------- sheet ---------- */
@@ -874,6 +880,8 @@ function briefFacts(){const F=[],t=dkey(),n=nowHM();
   if(FIT&&FIT.well){const w=FIT.well.filter(x=>x.ctl!=null).slice(-1)[0];if(w){const f=Math.round(w.ctl-w.atl);F.push(['🏃',`Training form ${f>0?'+':''}${f}${f<-20?' — take it easy today':f>5?' — fresh, good day for a hard session':''}`]);}}
   const T=lsGet('trickle_summary');if(T&&T.month===t.slice(0,7))F.push(['💸',`${inr.format(T.spent)} spent this month${T.budget?` of ${inr.format(T.budget)}`:''}`]);
   const hq=hiQ||hiQueue();if(hq.length)F.push(['🔤',`${hq.length} Hindi words to revise`]);
+  {const it=typeof saaramToday==='function'&&saaramToday();if(it&&!sGet('done',[]).includes(t))F.push(['📖',`Saaram idea of the day: ${it.t} (${it.b.t})`]);}
+  {const z=typeof mozhiState==='function'&&mozhiState();if(z&&z.dayXp<z.goal)F.push(['🗣️',`${z.lang[0]} practice: ${z.dayXp}/${z.goal} XP${z.due?`, ${z.due} words due`:''}${z.streak?` — keep your ${z.streak}-day streak`:''}`]);}
   if(typeof tamSpecial==='function')tamSpecial(t).forEach(x=>F.push([x.ic,`Today: ${x.en}${x.ta?' ('+x.ta+')':''}`]));
   const top=NEWS?.categories?.[0]?.items?.[0];if(top)F.push(['📰',top.t]);
   return F;}
@@ -1165,7 +1173,7 @@ function renderTamil(){const box=$('#tamBody');if(!box)return;let P;try{P=tamTod
 
 
 /* ================= Home layout (reorder / hide tiles) ================= */
-const TILES=[['capture','✍️ Quick capture'],['brief','🌅 Your day'],['wx','🌤️ Weather & today'],['tamil','🪔 Tamil calendar'],['upnext','📅 Up next'],['yt','▶️ YouTube'],['markets','📈 Markets'],['travel','🚆 Travel'],['alerts','🧾 Bills & occasions'],['trip','🧳 Trip'],['hindi','🔤 Hindi revision'],['journal','📝 Journal'],['trickle','💸 Trickle'],['training','🏃 Training'],['news','📰 Headlines'],['reading','📚 Currently reading'],['countdowns','⏳ Countdowns'],['due','✅ Due soon'],['habits','🔁 Today\'s habits'],['launch','🚀 Launch apps']];
+const TILES=[['capture','✍️ Quick capture'],['brief','🌅 Your day'],['wx','🌤️ Weather & today'],['tamil','🪔 Tamil calendar'],['upnext','📅 Up next'],['yt','▶️ YouTube'],['markets','📈 Markets'],['travel','🚆 Travel'],['alerts','🧾 Bills & occasions'],['trip','🧳 Trip'],['hindi','🔤 Hindi revision'],['journal','📝 Journal'],['trickle','💸 Trickle'],['training','🏃 Training'],['news','📰 Headlines'],['reading','📚 Currently reading'],['countdowns','⏳ Countdowns'],['due','✅ Due soon'],['habits','🔁 Today\'s habits'],['mozhi','🗣️ Mozhi'],['launch','🚀 Launch apps']];
 const DEF=TILES.map(t=>t[0]);
 function layoutOrder(){const saved=(S.layout&&S.layout.order||[]).filter(id=>DEF.includes(id));const out=saved.slice();
   DEF.forEach((id,i)=>{if(out.includes(id))return;let j=-1;for(let k=i-1;k>=0;k--){j=out.indexOf(DEF[k]);if(j>=0)break;}out.splice(j+1,0,id);});return out;}
@@ -1185,8 +1193,49 @@ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)r
 });
 ACTS.layout=()=>layoutSheet();
 
+
+/* ================= Saaram + Mozhi (same-site apps, read on this device) ================= */
+let SAARAM=null;
+async function loadSaaram(){if(SAARAM)return renderSaaram();
+  try{const h=await (await fetch('/saaram/index.html',{cache:'no-cache'})).text();const m=h.match(/const BOOKS\s*=\s*(\[[\s\S]*?\n\]);/);
+    if(!m)throw 0;const B=new Function('return '+m[1])();
+    const maxI=Math.max(...B.map(b=>b.ideas.length)),ORDER=[];for(let i=0;i<maxI;i++)B.forEach(b=>{if(b.ideas[i])ORDER.push({b,i,t:b.ideas[i][0],d:b.ideas[i][1]});});
+    SAARAM={B,ORDER};}catch(e){SAARAM={err:true};}
+  renderSaaram();renderBrief();}
+const sGet=(k,d)=>{try{const v=localStorage.getItem('saaram_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
+function saaramToday(){if(!SAARAM||SAARAM.err)return null;const d=new Date(),dn=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5);return SAARAM.ORDER[dn%SAARAM.ORDER.length];}
+function renderSaaram(){const box=$('#saaramBody');if(!box)return;
+  if(!SAARAM){box.innerHTML='<div class="muted">Loading…</div>';return;}
+  if(SAARAM.err){box.innerHTML='<div class="empty">Saaram data appears once Command Centre is opened from firstlaboratory.github.io.</div>';return;}
+  const done=sGet('done',[]),fin=sGet('finished',[]),saved=sGet('saved',[]),t=dkey(),it=saaramToday();
+  let st=0;const d=new Date();if(!done.includes(dkey(d)))d.setDate(d.getDate()-1);while(done.includes(dkey(d))){st++;d.setDate(d.getDate()-1);}
+  const B=SAARAM.B,byId=Object.fromEntries(B.map(b=>[b.id,b]));
+  const stars=saved.map(k=>{const [id,i]=k.split(':');const b=byId[id];return b&&b.ideas[+i]?{b,t:b.ideas[+i][0]}:null;}).filter(Boolean);
+  box.innerHTML=`<div class="row" style="justify-content:space-between"><div class="muted" style="font-size:13px">Today's idea ${done.includes(t)?'<span style="color:var(--accent)">✓ read</span>':''}</div><div class="streak">${st?'🔥 '+st+' day'+(st>1?'s':''):''}</div></div>
+   <div class="idea" style="border-left-color:${esc(it.b.c||'var(--accent)')}"><div class="t">${esc(it.t)}</div><div class="d">${esc(it.d)}</div>
+     <div class="muted" style="font-size:12px;margin-top:8px">${esc(it.b.e||'📘')} ${esc(it.b.t)} · ${esc(it.b.a)}</div></div>
+   <div class="muted" style="font-size:13px;margin-top:6px">Summaries finished: <b style="color:var(--text)">${fin.length}</b> of ${B.length}</div>
+   <div class="bar"><i style="width:${fin.length/B.length*100}%"></i></div>
+   ${fin.length?`<div class="muted" style="font-size:12px;margin-top:6px">${fin.map(id=>byId[id]).filter(Boolean).map(b=>esc(b.e||'')+' '+esc(b.t)).join(' · ')}</div>`:''}
+   ${stars.length?`<div class="muted" style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;margin:12px 0 4px">⭐ Starred ideas</div>${stars.slice(0,5).map(x=>`<div style="padding:4px 0;font-size:14px">${esc(x.t)} <span class="muted" style="font-size:12px">— ${esc(x.b.t)}</span></div>`).join('')}${stars.length>5?`<div class="muted" style="font-size:12px">+${stars.length-5} more in Saaram</div>`:''}`:''}`;}
+
+const MZL={ta:['Tamil','தமிழ்'],en:['English','English'],hi:['Hindi','हिन्दी'],ml:['Malayalam','മലയാളം'],es:['Spanish','Español']};
+function mozhiState(){let M=null;try{M=JSON.parse(localStorage.getItem('mozhi.v1')||'null');}catch(e){}if(!M||!M.target)return null;
+  const ds=x=>x.getFullYear()+'-'+(x.getMonth()+1)+'-'+x.getDate(),n=new Date(),y=new Date();y.setDate(y.getDate()-1);
+  const streak=(M.last===ds(n)||M.last===ds(y))?M.streak||0:0,dayXp=M.day===ds(n)?M.dayXp||0:0,srs=(M.srs||{})[M.target]||{},now=Date.now();
+  return {lang:MZL[M.target]||[M.target,M.target],base:MZL[M.base]||[M.base,''],xp:M.xp||0,goal:M.goal||50,dayXp,streak,due:Object.values(srs).filter(x=>x&&x.due<=now).length,words:Object.keys(srs).length,doneToday:M.last===ds(n)};}
+function renderMozhi(){const z=mozhiState();
+  const html=!z?'<div class="empty">Open Mozhi on this device and pick a language — your progress will show here.</div>'
+   :`<div class="ring"><div style="position:relative;width:64px;height:64px;flex:0 0 64px"><svg viewBox="0 0 36 36" width="64" height="64"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line)" stroke-width="4"/>
+      <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-dasharray="${Math.min(1,z.dayXp/z.goal)*97.4} 97.4" transform="rotate(-90 18 18)"/></svg>
+      <div style="position:absolute;inset:0;display:grid;place-items:center;font-size:12px" class="mono">${z.dayXp}</div></div>
+     <div class="grow"><div style="font-weight:600">${esc(z.lang[1])} <span class="muted" style="font-weight:400">${esc(z.lang[0])}</span></div>
+      <div class="muted" style="font-size:13px">${z.dayXp>=z.goal?'✓ Daily goal done':`${z.dayXp} / ${z.goal} XP today`}${z.streak?` · <span class="streak">🔥 ${z.streak}</span>`:''}</div>
+      <div class="muted" style="font-size:13px">${z.due?`<b style="color:var(--warn)">${z.due}</b> words due for review · `:''}${fmt(z.words)} words practised · ${fmt(z.xp)} XP total</div></div></div>`;
+  ['mozhiHome','mozhiRead'].forEach(id=>{const el=$('#'+id);if(el)el.innerHTML=html;});}
+
 /* ---------- boot ---------- */
-load();render();weather();loadNews();fitFetch();initSync();loadMarkets();loadTamil();$('#ytRef').onclick=()=>{toast('Refreshing YouTube…');loadYT(true);};setTimeout(()=>loadYT(),2500);setTimeout(()=>{let c=null;try{c=JSON.parse(localStorage.getItem(BK)||'null');}catch(e){}if(gemKey()&&!(c&&c.date===dkey()))aiBrief(false);},5000);go(location.hash.slice(1)||'home');
+load();render();weather();loadNews();fitFetch();initSync();loadMarkets();loadTamil();loadSaaram();$('#ytRef').onclick=()=>{toast('Refreshing YouTube…');loadYT(true);};setTimeout(()=>loadYT(),2500);setTimeout(()=>{let c=null;try{c=JSON.parse(localStorage.getItem(BK)||'null');}catch(e){}if(gemKey()&&!(c&&c.date===dkey()))aiBrief(false);},5000);go(location.hash.slice(1)||'home');
 setInterval(()=>{tick();renderSchedule();},30000);setInterval(weather,30*60000);setInterval(loadNews,20*60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){hiQ=null;render();loadNews();fitFetch();loadMarkets();loadYT();window.__sync&&window.__sync.pull();}});
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.ai|claudeusercontent/.test(location.hostname)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
